@@ -59,6 +59,29 @@ class TestSquaredLoss(TestCase):
         assert_almost_equal(got[1][1], 81.4039, places=4)
 
 
+class TestSquaredLossWithL2Reg(TestCase):
+
+    def setUp(self):
+        self.testee = MLWithSquaredLoss(l2_reg=1)
+        X, y = load_data('ex1data1')
+        self.X = X
+        self.y = y
+        self.n = self.X.shape[1]
+
+    def test_loss_function(self):
+        # theta is initialized by test value
+        self.testee.initialize_theta(np.ones((self.n, 1)))
+        got = self.testee.loss_function(self.X, self.y)
+        assert_almost_equal(got, 10.2717, places=4)
+
+    def test_gradient(self):
+        # theta is initialized by test value
+        self.testee.initialize_theta(np.ones((self.n, 1)))
+        got = self.testee.gradient(self.X, self.y)
+        assert_almost_equal(got[0][0], 3.3207, places=4)
+        assert_almost_equal(got[1][0], 24.2452, places=4)
+
+
 class MLWithLogLoss(BaseML, LogLossMixin):
 
     pass
@@ -114,3 +137,27 @@ class TestLogLoss(TestCase):
         assert_almost_equal(got[1][1], 1.17100173e+05, places=3)
         assert_almost_equal(got[1][2], 1.08465593e+05, places=3)
         assert_almost_equal(got[2][2], 1.18180491e+05, places=3)
+
+
+class TestLogLossWithL2Reg(TestCase):
+
+    def setUp(self):
+        self.testee = MLWithLogLoss(l2_reg=10)
+        X, y = load_data('ex2data2')
+        self.X = X
+        self.y = y
+        self.n = self.X.shape[1]
+
+    def test_loss_function(self):
+        # theta is initialized by test value
+        self.testee.initialize_theta(np.ones((self.n, 1)))
+        got = self.testee.loss_function(self.X, self.y)
+        assert_almost_equal(got, 1.0238, places=4)
+
+    def test_gradient(self):
+        # theta is initialized by test value
+        self.testee.initialize_theta(np.ones((self.n, 1)))
+        got = self.testee.gradient(self.X, self.y)
+        assert_almost_equal(got[0][0], 0.264, places=4)
+        assert_almost_equal(got[1][0], 0.1532, places=4)
+        assert_almost_equal(got[2][0], 0.1717, places=4)

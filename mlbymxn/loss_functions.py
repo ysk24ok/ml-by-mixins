@@ -23,12 +23,15 @@ class SquaredLossMixin(BaseLossMixin):
         m = len(X)
         err = self.predict(X) - y   # m x 1
         loss = np.dot(err.T, err) / (2 * m)
+        loss += self.l2_reg * np.sum(self.theta[1:] ** 2) / (2 * m)
         return loss[0][0]
 
     def gradient(self, X: np.array, y: np.array) -> np.array:
         m = len(X)
         err = self.predict(X) - y       # m x 1
-        return np.dot(X.T, err) / m     # n x 1
+        grad = np.dot(X.T, err) / m     # n x 1
+        grad += self.l2_reg * np.append(np.zeros((1, 1)), self.theta[1:], axis=0) / m
+        return grad
 
     def hessian(self, X: np.array) -> np.array:
         m = len(X)
@@ -49,12 +52,15 @@ class LogLossMixin(BaseLossMixin):
         loss_pos = np.dot(y.T, np.log(prob))
         loss_neg = np.dot((1-y).T, np.log(1-prob))
         loss = - (loss_pos + loss_neg) / m
+        loss += self.l2_reg * np.sum(self.theta[1:] ** 2) / (2 * m)
         return loss[0][0]
 
     def gradient(self, X: np.array, y: np.array) -> np.array:
         m = len(X)
         err = self.predict(X) - y       # m x 1
-        return np.dot(X.T, err) / m     # n x 1
+        grad = np.dot(X.T, err) / m     # n x 1
+        grad += self.l2_reg * np.append(np.zeros((1, 1)), self.theta[1:], axis=0) / m
+        return grad
 
     def hessian(self, X: np.array) -> np.array:
         m = len(X)
