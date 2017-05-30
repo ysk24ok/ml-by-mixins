@@ -17,7 +17,7 @@ class GradientDescentMixin(BaseOptimizerMixin):
         m, n = X.shape
         # when theta is not initialized
         if len(self.theta) == 0:
-            self.initialize_theta(np.random.rand(n+1, 1) - 0.5)
+            self.initialize_theta(np.random.rand(n, 1) - 0.5)
         if self.verbose is True:
             cost = self.loss_function(X, y)
             print('initial cost: {0:.6f}'.format(cost))
@@ -39,7 +39,7 @@ class StochasticGradientDescentMixin(BaseOptimizerMixin):
         m, n = X.shape
         # when theta is not initialized
         if len(self.theta) == 0:
-            self.initialize_theta(np.random.rand(n+1, 1) - 0.5)
+            self.initialize_theta(np.random.rand(n, 1) - 0.5)
         if self.verbose is True:
             cost = self.loss_function(X, y)
             print('initial cost: {0:.6f}'.format(cost))
@@ -73,7 +73,7 @@ class NewtonMixin(BaseOptimizerMixin):
         m, n = X.shape
         # when theta is not initialized
         if len(self.theta) == 0:
-            self.initialize_theta(np.random.rand(n+1, 1) - 0.5)
+            self.initialize_theta(np.random.rand(n, 1) - 0.5)
         if self.verbose is True:
             cost = self.loss_function(X, y)
             print('initial cost: {0:.6f}'.format(cost))
