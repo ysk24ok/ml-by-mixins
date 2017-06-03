@@ -21,9 +21,9 @@ class LogisticRegressionSGD(
         LogisticRegression, StochasticGradientDescentMixin):
 
     def __init__(self, shuffle: bool=True, batch_size: int=1, **kargs):
+        super().__init__(**kargs)
         # shuffle training samples every iteration
         self.shuffle = shuffle
-        super().__init__(**kargs)
         # number of training samples to be used in gradient calculation
         # batch_size=1   -> SGD
         # 1<batch_size<m -> mini-batch SGD

@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
-import random
 
 import numpy as np
+from sklearn.utils import shuffle
 
 
 class BaseOptimizerMixin(object, metaclass=ABCMeta):
@@ -40,13 +40,13 @@ class StochasticGradientDescentMixin(BaseOptimizerMixin):
 
     def update_theta(self, X: np.array, y: np.array):
         m, n = X.shape
-        idxes = list(range(0, m))
+        # shuffle X and y while maintaining the correspondance of each sample
         if self.shuffle is True:
-            random.shuffle(idxes)
+            X_shuffled, y_shuffled = shuffle(X, y)
         num_sub_iters = 1
         while True:
-            p = (num_sub_iters - 1) * self.batch_size
-            n = num_sub_iters * self.batch_size
+            p = self.batch_size * (num_sub_iters - 1)
+            n = self.batch_size * num_sub_iters
             X_partial = X[p:n]
             y_partial = y[p:n]
             if len(X_partial) < self.batch_size:
