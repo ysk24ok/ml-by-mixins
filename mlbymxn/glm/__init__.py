@@ -8,3 +8,4 @@ from .logistic import (
     LogisticRegressionSGD,
     LogisticRegressionNewton
 )
+from .perceptron import Perceptron

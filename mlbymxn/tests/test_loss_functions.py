@@ -4,7 +4,9 @@ import numpy as np
 from nose.tools import assert_almost_equal
 
 from mlbymxn.base import BaseML
-from mlbymxn.loss_functions import SquaredLossMixin, LogLossMixin
+from mlbymxn.loss_functions import (
+    SquaredLossMixin, LogLossMixin, HingeLossMixin
+)
 from mlbymxn.utils import load_data
 
 
@@ -161,3 +163,65 @@ class TestLogLossWithL2Reg(TestCase):
         assert_almost_equal(got[0][0], 0.264, places=4)
         assert_almost_equal(got[1][0], 0.1532, places=4)
         assert_almost_equal(got[2][0], 0.1717, places=4)
+
+
+class MLWithHingeLoss(BaseML, HingeLossMixin):
+
+    def __init__(self, threshold: float):
+        self.threshold = threshold
+
+
+class TestHingeLoss(TestCase):
+
+    def setUp(self):
+        self.X = np.array([
+            [1, 0.6],
+            [1, -1.2],
+            [1, 0.3],
+        ])
+        self.y = np.array([[1], [1], [-1]])
+        self.n = self.X.shape[1]
+
+    def test_predict(self):
+        # threshold=0
+        testee = MLWithHingeLoss(threshold=0.0)
+        testee.initialize_theta(np.ones((self.n, 1)))
+        got = testee.predict(self.X)
+        np.testing.assert_array_equal(got, np.array([[1], [-1], [1]]))
+        # threshold=1
+        testee = MLWithHingeLoss(threshold=1.0)
+        testee.initialize_theta(np.ones((self.n, 1)))
+        got = testee.predict(self.X)
+        np.testing.assert_array_equal(got, np.array([[1], [-1], [1]]))
+
+    def test_loss_function(self):
+        # threshold=0
+        testee = MLWithHingeLoss(threshold=0.0)
+        testee.initialize_theta(np.ones((self.n, 1)))
+        got = testee.loss_function(self.X, self.y)
+        assert_almost_equal(got, 1.5, places=1)
+        # threshold=1
+        testee = MLWithHingeLoss(threshold=1.0)
+        testee.initialize_theta(np.ones((self.n, 1)))
+        got = testee.loss_function(self.X, self.y)
+        assert_almost_equal(got, 3.5, places=1)
+
+    def test_gradient(self):
+        # threshold=0
+        testee = MLWithHingeLoss(threshold=0.0)
+        testee.initialize_theta(np.ones((self.n, 1)))
+        got = testee.gradient(self.X[0:1], self.y[0:1])
+        np.testing.assert_array_equal(got, np.array([[0], [0]]))
+        got = testee.gradient(self.X[1:2], self.y[1:2])
+        np.testing.assert_array_equal(got, np.array([[-1], [1.2]]))
+        got = testee.gradient(self.X[2:3], self.y[2:3])
+        np.testing.assert_array_equal(got, np.array([[1], [0.3]]))
+        # threshold=1
+        testee = MLWithHingeLoss(threshold=0.0)
+        testee.initialize_theta(np.ones((self.n, 1)))
+        got = testee.gradient(self.X[0:1], self.y[0:1])
+        np.testing.assert_array_equal(got, np.array([[0], [0]]))
+        got = testee.gradient(self.X[1:2], self.y[1:2])
+        np.testing.assert_array_equal(got, np.array([[-1], [1.2]]))
+        got = testee.gradient(self.X[2:3], self.y[2:3])
+        np.testing.assert_array_equal(got, np.array([[1], [0.3]]))

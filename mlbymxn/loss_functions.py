@@ -66,3 +66,26 @@ class LogLossMixin(BaseLossMixin):
         m = len(X)
         prob = self._sigmoid(np.dot(X, self.theta))         # m x 1
         return np.dot(prob.T, prob) * np.dot(X.T, X) / m    # n x n
+
+
+class HingeLossMixin(BaseLossMixin):
+
+    def predict(self, X: np.array) -> np.array:
+        z = np.dot(X, self.theta)   # m x 1
+        return np.vectorize(lambda x: 1 if x >= 0 else -1)(z)
+
+    def _loss(self, X: np.array, y: np.array) -> np.array:
+        m = len(X)
+        z = np.dot(X, self.theta) * y   # m x 1
+        # max(0, 1-ywx)
+        return np.maximum(np.zeros((m, 1)), self.threshold - z)
+
+    def loss_function(self, X: np.array, y: np.array) -> float:
+        return np.sum(self._loss(X, y))
+
+    def gradient(self, X: np.array, y: np.array) -> np.array:
+        m, n = X.shape
+        loss = self._loss(X, y)     # m x 1
+        # max(0, -yx)
+        grad = -y * X * (loss > 0)      # m x n
+        return np.sum(grad, axis=0).reshape((n, 1)) / m
