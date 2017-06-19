@@ -3,12 +3,12 @@ from unittest import TestCase
 import numpy as np
 from nose.tools import assert_almost_equal
 
-from ..logistic import (
+from mlbymxn.glm import (
     LogisticRegressionGD,
     LogisticRegressionSGD,
     LogisticRegressionNewton
 )
-from ...utils import load_data
+from mlbymxn.utils import load_data
 
 
 class TestLogisticRegressionGD(TestCase):

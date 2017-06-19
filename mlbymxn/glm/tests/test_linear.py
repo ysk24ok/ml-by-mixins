@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 from nose.tools import assert_almost_equal
 
-from mlbymxn.glm.linear import (
+from mlbymxn.glm import (
     LinearRegressionGD,
     LinearRegressionSGD,
     LinearRegressionNewton
