@@ -8,7 +8,7 @@ def add_bias(X: np.array) -> np.array:
     return np.append(np.ones((m, 1)), X, axis=1)
 
 def load_data(name: str):
-    testdata_abspath = '{}/data/{}.txt'.format(
+    testdata_abspath = '{}/data/{}'.format(
         os.path.dirname(__file__), name)
     df = pd.read_csv(testdata_abspath, header=None)
     n = len(df.ix[0])

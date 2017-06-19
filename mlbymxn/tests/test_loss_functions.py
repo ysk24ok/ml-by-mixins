@@ -19,7 +19,7 @@ class TestSquaredLoss(TestCase):
 
     def setUp(self):
         self.testee = MLWithSquaredLoss()
-        X, y = load_data('ex1data1')
+        X, y = load_data('ex1data1.txt')
         self.X = X
         self.y = y
         self.n = self.X.shape[1]
@@ -65,7 +65,7 @@ class TestSquaredLossWithL2Reg(TestCase):
 
     def setUp(self):
         self.testee = MLWithSquaredLoss(l2_reg=1)
-        X, y = load_data('ex1data1')
+        X, y = load_data('ex1data1.txt')
         self.X = X
         self.y = y
         self.n = self.X.shape[1]
@@ -93,7 +93,7 @@ class TestLogLoss(TestCase):
 
     def setUp(self):
         self.testee = MLWithLogLoss()
-        X, y = load_data('ex2data1')
+        X, y = load_data('ex2data1.txt')
         self.X = X
         self.y = y
         self.n = self.X.shape[1]
@@ -145,7 +145,7 @@ class TestLogLossWithL2Reg(TestCase):
 
     def setUp(self):
         self.testee = MLWithLogLoss(l2_reg=10)
-        X, y = load_data('ex2data2')
+        X, y = load_data('ex2data2.txt')
         self.X = X
         self.y = y
         self.n = self.X.shape[1]

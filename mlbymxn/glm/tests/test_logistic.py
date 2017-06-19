@@ -14,7 +14,7 @@ from mlbymxn.utils import load_data
 class TestLogisticRegressionGD(TestCase):
 
     def setUp(self):
-        X, y = load_data('ex2data1')
+        X, y = load_data('ex2data1.txt')
         self.X = X
         self.y = y
         self.n = self.X.shape[1]
@@ -37,7 +37,7 @@ class TestLogisticRegressionGD(TestCase):
 class TestLogisticRegressionSGD(TestCase):
 
     def setUp(self):
-        X, y = load_data('ex2data1')
+        X, y = load_data('ex2data1.txt')
         m, n = X.shape
         self.X = X
         self.y = y
@@ -90,7 +90,7 @@ class TestLogisticRegressionSGD(TestCase):
 class TestLogisticRegressionNewton(TestCase):
 
     def setUp(self):
-        X, y = load_data('ex2data1')
+        X, y = load_data('ex2data1.txt')
         self.X = X
         self.y = y
         self.n = self.X.shape[1]

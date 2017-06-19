@@ -9,7 +9,7 @@ from mlbymxn.utils import load_data
 class TestPerceptron(TestCase):
 
     def setUp(self):
-        X, y = load_data('ex2data2')
+        X, y = load_data('ex2data2.txt')
         self.X = X
         self.y = np.vectorize(lambda x: x if x == 1 else -1)(y)
         self.n = self.X.shape[1]
