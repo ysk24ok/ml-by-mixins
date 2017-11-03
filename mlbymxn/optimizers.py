@@ -6,7 +6,7 @@ from sklearn.utils import shuffle
 
 class BaseOptimizerMixin(object, metaclass=ABCMeta):
 
-    def fit(self, X: np.array, y: np.array):
+    def fit(self, X, y):
         m, n = X.shape
         # when theta is not initialized
         if len(self.theta) == 0:
@@ -25,20 +25,20 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
             num_iters += 1
 
     @abstractmethod
-    def update_theta(self, X: np.array, y: np.array):
+    def update_theta(self, X, y):
         pass
 
 
 class GradientDescentMixin(BaseOptimizerMixin):
 
-    def update_theta(self, X: np.array, y: np.array):
+    def update_theta(self, X, y):
         grad = self.gradient(X, y)
         self.theta -= self.eta * grad
 
 
 class StochasticGradientDescentMixin(BaseOptimizerMixin):
 
-    def update_theta(self, X: np.array, y: np.array):
+    def update_theta(self, X, y):
         m, n = X.shape
         # shuffle X and y while maintaining the correspondance of each sample
         if self.shuffle is True:
@@ -58,7 +58,7 @@ class StochasticGradientDescentMixin(BaseOptimizerMixin):
 
 class NewtonMixin(BaseOptimizerMixin):
 
-    def update_theta(self, X: np.array, y: np.array):
+    def update_theta(self, X, y):
         grad = self.gradient(X, y)
         hessian = self.hessian(X)
         self.theta -= self.eta * np.linalg.inv(hessian) @ grad

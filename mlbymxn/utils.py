@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 
-def add_bias(X: np.array) -> np.array:
+def add_bias(X):
     m = len(X)
     return np.append(np.ones((m, 1)), X, axis=1)
 
