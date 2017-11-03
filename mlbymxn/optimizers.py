@@ -61,4 +61,4 @@ class NewtonMixin(BaseOptimizerMixin):
     def update_theta(self, X: np.array, y: np.array):
         grad = self.gradient(X, y)
         hessian = self.hessian(X)
-        self.theta -= self.eta * np.dot(np.linalg.inv(hessian), grad)
+        self.theta -= self.eta * np.linalg.inv(hessian) @ grad
