@@ -6,11 +6,15 @@ import numpy as np
 class BaseLossMixin(object, metaclass=ABCMeta):
 
     @abstractmethod
-    def loss_function(self):
+    def predict(self, X):
         pass
 
     @abstractmethod
-    def gradient(self):
+    def loss_function(self, X, y):
+        pass
+
+    @abstractmethod
+    def gradient(self, X, y):
         pass
 
 
