@@ -20,26 +20,26 @@ class BaseLossMixin(object, metaclass=ABCMeta):
 
 class SquaredLossMixin(BaseLossMixin):
 
-    def predict(self, X):
-        return X @ self.theta
+    def predict(self, theta, X):
+        return X @ theta
 
-    def loss_function(self, X, y) -> float:
-        m = len(X)
-        err = self.predict(X) - y   # m x 1
-        loss = err.T @ err
-        loss += self.l2_reg * np.sum(self.theta[1:] ** 2)
-        return loss[0][0] / (2 * m)
+    def loss_function(self, theta, X, y) -> float:
+        m = X.shape[0]
+        err = self.predict(theta, X) - y
+        loss = np.sum(err ** 2)
+        loss += self.l2_reg * np.sum(theta[1:] ** 2)
+        return loss / (2 * m)
 
-    def gradient(self, X, y):
-        m = len(X)
-        err = self.predict(X) - y       # m x 1
-        grad = X.T @ err        # n x 1
-        grad += self.l2_reg * np.append(np.zeros((1, 1)), self.theta[1:], axis=0)
+    def gradient(self, theta, X, y):
+        m, n = X.shape
+        err = self.predict(theta, X) - y
+        grad = X.T @ err
+        grad += self.l2_reg * np.append(0, theta[1:])
         return grad / m
 
-    def hessian(self, X):
-        m = len(X)
-        return X.T @ X / m   # n x n
+    def hessian(self, theta, X):
+        m = X.shape[0]
+        return X.T @ X / m
 
 
 class LogLossMixin(BaseLossMixin):
@@ -47,49 +47,50 @@ class LogLossMixin(BaseLossMixin):
     def _sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
 
-    def predict(self, X):
-        return self._sigmoid(X @ self.theta)
+    def predict(self, theta, X):
+        return self._sigmoid(X @ theta)
 
-    def loss_function(self, X, y) -> float:
-        m = len(X)
-        prob = self.predict(X)      # m x 1
-        loss_pos = y.T @ np.log(prob)
-        loss_neg = (1-y).T @ np.log(1-prob)
+    def loss_function(self, theta, X, y) -> float:
+        m = X.shape[0]
+        prob = self.predict(theta, X)
+        # TODO: prevent 'RuntimeWarning: divide by zero encountered in log'
+        loss_pos = y @ np.log(prob)
+        loss_neg = (1-y) @ np.log(1-prob)
         loss = - (loss_pos + loss_neg) / m
-        loss += self.l2_reg * np.sum(self.theta[1:] ** 2) / (2 * m)
-        return loss[0][0]
+        loss += self.l2_reg * np.sum(theta[1:] ** 2) / (2 * m)
+        return loss
 
-    def gradient(self, X, y):
-        m = len(X)
-        err = self.predict(X) - y       # m x 1
-        grad = X.T @ err            # n x 1
-        grad += self.l2_reg * np.append(np.zeros((1, 1)), self.theta[1:], axis=0)
+    def gradient(self, theta, X, y):
+        m = X.shape[0]
+        err = self.predict(theta, X) - y
+        grad = X.T @ err
+        grad += self.l2_reg * np.append(0, theta[1:])
         return grad / m
 
-    def hessian(self, X):
-        m = len(X)
-        prob = self._sigmoid(X @ self.theta)        # m x 1
-        return prob.T @ prob * X.T @ X / m    # n x n
+    def hessian(self, theta, X):
+        m = X.shape[0]
+        prob = self._sigmoid(X @ theta)
+        return prob @ prob * X.T @ X / m
 
 
 class HingeLossMixin(BaseLossMixin):
 
-    def predict(self, X):
-        z = X @ self.theta      # m x 1
+    def predict(self, theta, X):
+        z = X @ theta
         return np.vectorize(lambda x: 1 if x >= 0 else -1)(z)
 
-    def _loss(self, X, y):
-        m = len(X)
-        z = X @ self.theta * y   # m x 1
-        # max(0, 1-ywx)
-        return np.maximum(np.zeros((m, 1)), self.threshold - z)
+    def _loss(self, theta, X, y):
+        m = X.shape[0]
+        z = X @ theta * y
+        # max(0, t-ywx)
+        return np.maximum(np.zeros((m,)), self.threshold - z)
 
-    def loss_function(self, X, y) -> float:
-        return np.sum(self._loss(X, y))
+    def loss_function(self, theta, X, y) -> float:
+        return np.sum(self._loss(theta, X, y))
 
-    def gradient(self, X, y):
+    def gradient(self, theta, X, y):
         m, n = X.shape
-        loss = self._loss(X, y)     # m x 1
+        loss = self._loss(theta, X, y)
         # max(0, -yx)
-        grad = -y * X * (loss > 0)      # m x n
-        return np.sum(grad, axis=0).reshape((n, 1)) / m
+        grad = -(X.T * loss) @ y
+        return grad

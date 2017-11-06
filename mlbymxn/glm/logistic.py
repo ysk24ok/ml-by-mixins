@@ -1,6 +1,7 @@
 from ..base import BaseML
 from ..loss_functions import LogLossMixin
 from ..optimizers import (
+    ScipyOptimizerMixin,
     GradientDescentMixin,
     StochasticGradientDescentMixin,
     NewtonMixin
@@ -8,6 +9,11 @@ from ..optimizers import (
 
 
 class LogisticRegression(BaseML, LogLossMixin):
+
+    pass
+
+
+class LogisticRegressionScipy(LogisticRegression, ScipyOptimizerMixin):
 
     pass
 

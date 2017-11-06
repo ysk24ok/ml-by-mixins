@@ -1,9 +1,12 @@
 from ..base import BaseML
 from ..loss_functions import HingeLossMixin
-from ..optimizers import StochasticGradientDescentMixin
+from ..optimizers import (
+    ScipyOptimizerMixin,
+    StochasticGradientDescentMixin
+)
 
 
-class Perceptron(BaseML, HingeLossMixin, StochasticGradientDescentMixin):
+class BasePerceptron(BaseML, HingeLossMixin):
 
     def __init__(self, shuffle: bool=True, **kargs):
         # learning rate is set to 1 by default
@@ -16,3 +19,13 @@ class Perceptron(BaseML, HingeLossMixin, StochasticGradientDescentMixin):
         self.shuffle = shuffle
         # number of training samples to be used in gradient calculation
         self.batch_size = 1
+
+
+class PerceptronScipy(BasePerceptron, ScipyOptimizerMixin):
+
+    pass
+
+
+class Perceptron(BasePerceptron, StochasticGradientDescentMixin):
+
+    pass

@@ -1,52 +1,48 @@
 from unittest import TestCase
 
-#import numpy as np
+import numpy as np
 from nose.tools import assert_tuple_equal, assert_almost_equal
+from numpy.testing import assert_array_almost_equal
 from sklearn.preprocessing import StandardScaler
 
 from mlbymxn.dimension_reduction import PCA
-from mlbymxn.utils import load_data_as_dataframe
+from mlbymxn.utils import load_data
 
 
 class TestPCA(TestCase):
 
     def setUp(self):
-        X = load_data_as_dataframe('ex7data1.csv')
+        X = load_data('ex7data1.csv')
         scaler = StandardScaler()
         self.X = scaler.fit_transform(X)
         self.pca = PCA(1)
 
-    def fit(self):
+    def test_fit(self):
         self.pca.fit(self.X)
         # U
-        assert_almost_equal(self.pca.U[0][0], -0.7071, places=4)
-        assert_almost_equal(self.pca.U[0][1], -0.7071, places=4)
-        assert_almost_equal(self.pca.U[1][0], -0.7071, places=4)
-        assert_almost_equal(self.pca.U[1][1], 0.7071, places=4)
+        expected_U = np.array([[-0.7071, -0.7071], [-0.7071, 0.7071]])
+        assert_array_almost_equal(self.pca.U, expected_U, decimal=4)
         # S
-        assert_almost_equal(self.pca.S[0], 1.7355, places=4)
-        assert_almost_equal(self.pca.S[0], 0.2645, places=4)
+        expected_S = np.array([1.7355, 0.2645])
+        assert_array_almost_equal(self.pca.S, expected_S, decimal=4)
         # V
-        assert_almost_equal(self.pca.V[0][0], -0.7071, places=4)
-        assert_almost_equal(self.pca.V[0][1], -0.7071, places=4)
-        assert_almost_equal(self.pca.V[1][0], -0.7071, places=4)
-        assert_almost_equal(self.pca.V[1][1], 0.7071, places=4)
+        expected_V = np.array([[-0.7071, -0.7071], [-0.7071, 0.7071]])
+        assert_array_almost_equal(self.pca.V, expected_V, decimal=4)
 
     def test_tansform(self):
-        m = len(self.X)
+        m = self.X.shape[0]
         self.pca.fit(self.X)
-        transformed_X = self.pca.transform(self.X)
-        assert_tuple_equal(transformed_X.shape, (m, 1))
-        assert_almost_equal(transformed_X[0][0], 1.4963, places=4)
-        assert_almost_equal(transformed_X[1][0], -0.9222, places=4)
+        got = self.pca.transform(self.X)
+        assert_tuple_equal(got.shape, (m, 1))
+        assert_almost_equal(got[0][0], 1.4963, places=4)
+        assert_almost_equal(got[1][0], -0.9222, places=4)
+        #assert_array_almost_equal(got, expected, decimal=4)
 
     def test_inverse_transform(self):
         m = len(self.X)
         self.pca.fit(self.X)
         transformed_X = self.pca.transform(self.X)
-        inv_transformed_X = self.pca.inverse_transform(transformed_X)
-        assert_tuple_equal(inv_transformed_X.shape, (m, 2))
-        assert_almost_equal(inv_transformed_X[0][0], -1.0581, places=4)
-        assert_almost_equal(inv_transformed_X[0][1], -1.0581, places=4)
-        assert_almost_equal(inv_transformed_X[1][0], 0.6521, places=4)
-        assert_almost_equal(inv_transformed_X[1][1], 0.6521, places=4)
+        got = self.pca.inverse_transform(transformed_X)
+        assert_tuple_equal(got.shape, (m, 2))
+        assert_array_almost_equal(got[0], np.array([-1.0581,-1.0581]), decimal=4)
+        assert_array_almost_equal(got[1], np.array([0.6521,0.6521]), decimal=4)
