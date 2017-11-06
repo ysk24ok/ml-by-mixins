@@ -9,7 +9,8 @@ from mlbymxn.base import BaseML
 from mlbymxn.loss_functions import (
     SquaredLossMixin,
     LogLossMixin,
-    HingeLossMixin
+    HingeLossMixin,
+    PoissonLossMixin
 )
 from mlbymxn.utils import load_data
 
@@ -239,15 +240,76 @@ class TestHingeLoss(TestCase):
         # TODO
         # threshold=0
         testee = MLWithHingeLoss(threshold=0.0)
-        testee.initialize_theta(np.random.rand(self.n,))
+        testee.initialize_theta(np.random.rand(self.n) - 0.5)
         got = check_grad(
             testee.loss_function, testee.gradient,
             testee.theta, self.X, self.y)
         #assert_almost_equal(got, 0, places=4)
         # threshold=1
         testee = MLWithHingeLoss(threshold=1.0)
-        testee.initialize_theta(np.random.rand(self.n,))
+        testee.initialize_theta(np.random.rand(self.n) - 0.5)
         got = check_grad(
             testee.loss_function, testee.gradient,
             testee.theta, self.X, self.y)
         #assert_almost_equal(got, 0, places=4)
+
+
+class MLWithPoissonLoss(BaseML, PoissonLossMixin):
+
+    pass
+
+
+class TestPoissonLoss(TestCase):
+
+    def setUp(self):
+        self.testee = MLWithPoissonLoss()
+        self.X, self.y = load_data('data3a.csv')
+        self.n = self.X.shape[1]
+
+    def test_loss_function(self):
+        # theta is initialized by test value
+        self.testee.initialize_theta(-np.ones((self.n,)))
+        got = self.testee.loss_function(self.testee.theta, self.X, self.y)
+        assert_almost_equal(got, 102.0244, places=4)
+
+    def test_gradient(self):
+        # theta is initialized by test value
+        self.testee.initialize_theta(-np.ones((self.n,)))
+        got = self.testee.gradient(self.testee.theta, self.X, self.y)
+        assert_array_almost_equal(
+            got, np.array([-7.83, -79.5939, -3.94]), decimal=4)
+
+    def test_check_gradient(self):
+        self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
+        got = check_grad(
+            self.testee.loss_function, self.testee.gradient,
+            self.testee.theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=3)
+
+
+class TestPoissonLossWithL2Reg(TestCase):
+
+    def setUp(self):
+        self.testee = MLWithPoissonLoss(l2_reg=10)
+        self.X, self.y = load_data('data3a.csv')
+        self.n = self.X.shape[1]
+
+    def test_loss_function(self):
+        # theta is initialized by test value
+        self.testee.initialize_theta(-np.ones((self.n,)))
+        got = self.testee.loss_function(self.testee.theta, self.X, self.y)
+        assert_almost_equal(got, 102.1244, places=4)
+
+    def test_gradient(self):
+        # theta is initialized by test value
+        self.testee.initialize_theta(-np.ones((self.n,)))
+        got = self.testee.gradient(self.testee.theta, self.X, self.y)
+        assert_array_almost_equal(
+            got, np.array([-7.83, -79.6939, -4.04]), decimal=4)
+
+    def test_check_gradient(self):
+        self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
+        got = check_grad(
+            self.testee.loss_function, self.testee.gradient,
+            self.testee.theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=3)

@@ -14,3 +14,9 @@ from .perceptron import (
     PerceptronScipy,
     Perceptron
 )
+from .poisson import (
+    PoissonRegressionScipy,
+    PoissonRegressionGD,
+    PoissonRegressionSGD,
+    PoissonRegressionNewton
+)

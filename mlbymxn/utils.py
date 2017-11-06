@@ -36,6 +36,12 @@ def load_data(name: str):
     elif name == 'ex7data1.csv':
         df = load_data_as_dataframe(name, columns=('x1', 'x2'))
         return df.values
+    elif name == 'data3a.csv':
+        df = load_data_as_dataframe(name, header=0)
+        m, n = df.shape
+        df['f=T'] = df['f'].map(lambda x: 1 if x == 'T' else 0)
+        X = df[['x', 'f=T']].values
+        y = df['y'].values
     else:
         raise ValueError('{} is not supported.'.format(name))
     return add_bias(X), y

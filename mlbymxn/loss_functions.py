@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
+from scipy.misc import factorial
 
 
 class BaseLossMixin(object, metaclass=ABCMeta):
@@ -89,8 +90,30 @@ class HingeLossMixin(BaseLossMixin):
         return np.sum(self._loss(theta, X, y))
 
     def gradient(self, theta, X, y):
-        m, n = X.shape
         loss = self._loss(theta, X, y)
         # max(0, -yx)
         grad = -(X.T * loss) @ y
         return grad
+
+
+class PoissonLossMixin(BaseLossMixin):
+
+    def predict(self, theta, X):
+        return np.exp(X @ theta)
+
+    def loss_function(self, theta, X, y) -> float:
+        m = X.shape[0]
+        z = self.predict(theta, X)
+        loss = -np.sum(-z + X @ theta * y - np.log(factorial(y))) / m
+        loss += self.l2_reg * np.sum(theta[1:] ** 2) / (2 * m)
+        return loss
+
+    def gradient(self, theta, X, y):
+        m = X.shape[0]
+        err = self.predict(theta, X) - y
+        grad = X.T @ err
+        grad += self.l2_reg * np.append(0, theta[1:])
+        return grad / m
+
+    def hessian(self, theta, X):
+        pass
