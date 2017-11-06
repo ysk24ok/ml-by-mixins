@@ -3,6 +3,7 @@ from unittest import TestCase
 import numpy as np
 from nose.tools import assert_almost_equal
 from numpy.testing import assert_array_almost_equal
+from scipy.optimize import check_grad
 
 from mlbymxn.base import BaseML
 from mlbymxn.loss_functions import (
@@ -59,6 +60,13 @@ class TestSquaredLoss(TestCase):
         assert_array_almost_equal(
             got, np.array([[1, 8.1598],[8.1598, 81.4039]]), decimal=4)
 
+    def test_check_gradient(self):
+        self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
+        got = check_grad(
+            self.testee.loss_function, self.testee.gradient,
+            self.testee.theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=5)
+
 
 class TestSquaredLossWithL2Reg(TestCase):
 
@@ -79,6 +87,13 @@ class TestSquaredLossWithL2Reg(TestCase):
         got = self.testee.gradient(self.testee.theta, self.X, self.y)
         assert_array_almost_equal(
             got, np.array([3.3207, 24.2452]), decimal=4)
+
+    def test_check_gradient(self):
+        self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
+        got = check_grad(
+            self.testee.loss_function, self.testee.gradient,
+            self.testee.theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=5)
 
 
 class MLWithLogLoss(BaseML, LogLossMixin):
@@ -133,6 +148,15 @@ class TestLogLoss(TestCase):
         ])
         assert_array_almost_equal(got, expected, decimal=3)
 
+    def test_check_gradient(self):
+        # TODO: prevent 'RuntimeWarning: divide by zero encountered in log'
+        #self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
+        self.testee.initialize_theta(np.zeros((self.n,)))
+        got = check_grad(
+            self.testee.loss_function, self.testee.gradient,
+            self.testee.theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=4)
+
 
 class TestLogLossWithL2Reg(TestCase):
 
@@ -153,6 +177,15 @@ class TestLogLossWithL2Reg(TestCase):
         got = self.testee.gradient(self.testee.theta, self.X, self.y)
         assert_array_almost_equal(
             got, np.array([0.264, 0.1532, 0.1717]), decimal=4)
+
+    def test_check_gradient(self):
+        # TODO: prevent 'RuntimeWarning: divide by zero encountered in log'
+        #self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
+        self.testee.initialize_theta(np.zeros((self.n,)))
+        got = check_grad(
+            self.testee.loss_function, self.testee.gradient,
+            self.testee.theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=4)
 
 
 class MLWithHingeLoss(BaseML, HingeLossMixin):
@@ -201,3 +234,20 @@ class TestHingeLoss(TestCase):
         testee.initialize_theta(np.ones((self.n,)))
         got = testee.gradient(testee.theta, self.X, self.y)
         assert_array_almost_equal(got, np.array([1.1, 2.13]))
+
+    def test_check_gradient(self):
+        # TODO
+        # threshold=0
+        testee = MLWithHingeLoss(threshold=0.0)
+        testee.initialize_theta(np.random.rand(self.n,))
+        got = check_grad(
+            testee.loss_function, testee.gradient,
+            testee.theta, self.X, self.y)
+        #assert_almost_equal(got, 0, places=4)
+        # threshold=1
+        testee = MLWithHingeLoss(threshold=1.0)
+        testee.initialize_theta(np.random.rand(self.n,))
+        got = check_grad(
+            testee.loss_function, testee.gradient,
+            testee.theta, self.X, self.y)
+        #assert_almost_equal(got, 0, places=4)
