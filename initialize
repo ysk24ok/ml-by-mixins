@@ -1,5 +1,0 @@
-#!/bin/sh
-/opt/python/3.6.1/bin/python -m venv venvdir
-./venvdir/bin/pip install -r requirements.txt
-
-export PYTHONPATH=/Users/yusuke-nishioka/Documents/Github/ml-by-mixins:$PYTHONPATH
