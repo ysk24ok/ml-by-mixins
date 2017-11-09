@@ -59,7 +59,7 @@ class TestLinearRegressionSGD(TestCase):
         self.X, self.y = load_data('ex1data1.txt')
         self.initial_theta = np.zeros((self.X.shape[1],))
 
-    def test_fit(self):
+    def test_fit_gd(self):
         # GD: theta is initialized by zero
         m = self.X.shape[0]
         testee = LinearRegressionSGD(
@@ -75,6 +75,7 @@ class TestLinearRegressionSGD(TestCase):
             eta=0.01, max_iters=100, batch_size=m)
         testee.fit(self.X, self.y)
 
+    def test_fit_sgd(self):
         # SGD: theta is initialized by zero
         testee = LinearRegressionSGD(eta=0.01, max_iters=100)
         testee.initialize_theta(self.initial_theta)
@@ -87,16 +88,19 @@ class TestLinearRegressionSGD(TestCase):
         testee = LinearRegressionSGD(eta=0.01, max_iters=100)
         testee.fit(self.X, self.y)
 
+    def test_fit_minibatch_sgd(self):
         # mini-batch SGD: theta is initialized by zero
-        testee = LinearRegressionSGD(eta=0.01, max_iters=100, batch_size=5)
+        testee = LinearRegressionSGD(
+            eta=0.01, max_iters=100, batch_size=5)
         testee.initialize_theta(self.initial_theta)
         testee.fit(self.X, self.y)
         assert_array_almost_equal(
-            testee.theta, np.array([-4.1677, 1.0634]), decimal=4)
+            testee.theta, np.array([-3.8824, 1.0230]), decimal=4)
         loss = testee.loss_function(testee.theta, self.X, self.y)
-        assert_almost_equal(loss, 5.4857, places=4)
+        assert_almost_equal(loss, 5.6355, places=4)
         # mini-batch SGD: theta is initialized by random value
-        testee = LinearRegressionSGD(eta=0.01, max_iters=100, batch_size=5)
+        testee = LinearRegressionSGD(
+            eta=0.01, max_iters=100, batch_size=5)
         testee.fit(self.X, self.y)
 
 
