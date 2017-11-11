@@ -46,7 +46,9 @@ class SquaredLossMixin(BaseLossMixin):
 class LogLossMixin(BaseLossMixin):
 
     def _sigmoid(self, z):
-        return 1 / (1 + np.exp(-z))
+        # Avoid 'RuntimeWarning: overflow encountered in exp'
+        f = lambda x: 1 / (1 + np.exp(-x)) if -x < 500 else self.eps
+        return np.vectorize(f)(z)
 
     def predict(self, theta, X):
         return self._sigmoid(X @ theta)
@@ -54,7 +56,8 @@ class LogLossMixin(BaseLossMixin):
     def loss_function(self, theta, X, y) -> float:
         m = X.shape[0]
         prob = self.predict(theta, X)
-        # TODO: prevent 'RuntimeWarning: divide by zero encountered in log'
+        # Avoid 'RuntimeWarning: divide by zero encountered in log'
+        prob = np.clip(prob, a_min=self.eps, a_max=1-self.eps)
         loss_pos = y @ np.log(prob)
         loss_neg = (1-y) @ np.log(1-prob)
         loss = - (loss_pos + loss_neg) / m

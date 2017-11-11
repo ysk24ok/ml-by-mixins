@@ -109,6 +109,17 @@ class TestLogLoss(TestCase):
         self.X, self.y = load_data('ex2data1.txt')
         self.n = self.X.shape[1]
 
+    def test_sigmoid(self):
+        # scalar
+        got = self.testee._sigmoid(1)
+        assert_almost_equal(got, 0.7311, places=4)
+        got = self.testee._sigmoid(-1000)
+        assert_almost_equal(got, 0, places=4)
+        # array
+        got = self.testee._sigmoid(np.array([1,0,-100,100,-1000]))
+        expected = np.array([0.7311, 0.5, 0, 1, 0])
+        assert_array_almost_equal(got, expected, decimal=4)
+
     def test_predict(self):
         self.testee.initialize_theta(
             np.array([-25.1613, 0.2062, 0.2015])
@@ -150,7 +161,7 @@ class TestLogLoss(TestCase):
         assert_array_almost_equal(got, expected, decimal=3)
 
     def test_check_gradient(self):
-        # TODO: prevent 'RuntimeWarning: divide by zero encountered in log'
+        # XXX: Sometimes fails when theta is randomly initialized
         #self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
         self.testee.initialize_theta(np.zeros((self.n,)))
         got = check_grad(
@@ -180,9 +191,7 @@ class TestLogLossWithL2Reg(TestCase):
             got, np.array([0.264, 0.1532, 0.1717]), decimal=4)
 
     def test_check_gradient(self):
-        # TODO: prevent 'RuntimeWarning: divide by zero encountered in log'
-        #self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
-        self.testee.initialize_theta(np.zeros((self.n,)))
+        self.testee.initialize_theta(np.random.rand(self.n) - 0.5)
         got = check_grad(
             self.testee.loss_function, self.testee.gradient,
             self.testee.theta, self.X, self.y)
