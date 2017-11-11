@@ -8,6 +8,7 @@ from mlbymxn.glm import (
     LinearRegressionScipy,
     LinearRegressionGD,
     LinearRegressionSGD,
+    LinearRegressionSAG,
     LinearRegressionNewton
 )
 from mlbymxn.utils import load_data
@@ -123,6 +124,41 @@ class TestLinearRegressionSGD(TestCase):
         # mini-batch SGD: theta is initialized by random value
         testee = LinearRegressionSGD(
             eta=0.01, max_iters=100, batch_size=5, shuffle=False)
+        testee.fit(self.X, self.y)
+
+
+class TestLinearRegressionSAG(TestCase):
+
+    def setUp(self):
+        self.X, self.y = load_data('ex1data1.txt')
+        self.initial_theta = np.zeros((self.X.shape[1],))
+
+    def test_fit(self):
+        # theta is initialized by zero
+        testee = LinearRegressionSAG(eta=0.0001, max_iters=100)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
+        assert_array_almost_equal(
+            testee.theta, np.array([-0.55, 0.86]), decimal=2)
+        loss = testee.loss_function(testee.theta, self.X, self.y)
+        assert_almost_equal(loss, 5.49, places=2)
+        # theta is initialized by random value
+        testee = LinearRegressionSAG(eta=0.0001, max_iters=100)
+        testee.fit(self.X, self.y)
+
+    def test_fit_without_shuffling(self):
+        # theta is initialized by zero
+        testee = LinearRegressionSAG(
+            eta=0.0001, max_iters=100, shuffle=False)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
+        assert_array_almost_equal(
+            testee.theta, np.array([-0.5525, 0.8572]), decimal=4)
+        loss = testee.loss_function(testee.theta, self.X, self.y)
+        assert_almost_equal(loss, 5.4946, places=4)
+        # theta is initialized by random value
+        testee = LinearRegressionSAG(
+            eta=0.0001, max_iters=100, shuffle=False)
         testee.fit(self.X, self.y)
 
 

@@ -11,6 +11,7 @@ which consists of mixins of loss functions and optimizers.
 * optimizer mixin
   - gradient desent (GD)
   - stochastic gradient descent (SGD)
+  - stochastic average gradient (SAG)
   - Newton's method
 
 |symbol|description|

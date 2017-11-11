@@ -6,6 +6,12 @@ from scipy.optimize import minimize
 
 class BaseOptimizerMixin(object, metaclass=ABCMeta):
 
+    def before_fit(self, X, y):
+        pass
+
+    def after_fit(self, X, y):
+        pass
+
     def fit(self, X, y):
         m, n = X.shape
         # when theta is not initialized
@@ -14,6 +20,7 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
         if self.verbose is True:
             cost = self.loss_function(self.theta, X, y)
             print('initial cost: {0:.6f}'.format(cost))
+        self.before_fit(X, y)
         num_iters = 1
         while True:
             self.update_theta(X, y)
@@ -23,6 +30,7 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
             if num_iters >= self.max_iters:
                 break
             num_iters += 1
+        self.after_fit(X, y)
 
     @abstractmethod
     def update_theta(self, X, y):
@@ -74,6 +82,38 @@ class StochasticGradientDescentMixin(BaseOptimizerMixin):
                 break
             grad = self.gradient(self.theta, X_partial, y_partial)
             self.theta -= self.eta * grad
+            num_sub_iters += 1
+
+
+class StochasticAverageGradientMixin(BaseOptimizerMixin):
+
+    def before_fit(self, X, y):
+        m, n = X.shape
+        self.sum_grad = np.zeros((n,))
+        self.sum_counts = 0
+        self.latest_errors = np.zeros((m,))
+
+    def update_theta(self, X, y):
+        m, n = X.shape
+        indices = np.arange(m)
+        if self.shuffle is True:
+            np.random.shuffle(indices)
+        num_sub_iters = 1
+        for idx in indices:
+            X_partial = X[idx].reshape((1, n))
+            y_partial = y[idx].reshape((1,))
+            grad = self.gradient(self.theta, X_partial, y_partial)
+            current_err = grad[1] / X[idx][1]
+            prev_err = self.latest_errors[idx]
+            self.sum_grad += X[idx] * (current_err - prev_err)
+            self.latest_errors[idx] = current_err
+            self.sum_counts += 1
+            # In first iteration, SAG doesn't update theta,
+            # just calculates prev_err of all samples
+            if self.sum_counts > m:
+                self.theta -= self.eta * self.sum_grad / m
+            #else:
+                #self.theta -= self.eta * self.sum_grad / self.sum_counts
             num_sub_iters += 1
 
 

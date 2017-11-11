@@ -7,7 +7,8 @@ from numpy.testing import assert_array_almost_equal
 from mlbymxn.glm import (
     PoissonRegressionScipy,
     PoissonRegressionGD,
-    PoissonRegressionSGD
+    PoissonRegressionSGD,
+    PoissonRegressionSAG
 )
 from mlbymxn.utils import load_data
 
@@ -122,4 +123,39 @@ class TestPoissonRegressionSGD(TestCase):
         # mini-batch SGD: theta is initialized by random value
         testee = PoissonRegressionSGD(
             eta=0.001, max_iters=100, batch_size=5, shuffle=False)
+        testee.fit(self.X, self.y)
+
+
+class TestPoissonRegressionSAG(TestCase):
+
+    def setUp(self):
+        self.X, self.y = load_data('data3a.csv')
+        self.initial_theta = np.zeros((self.X.shape[1],))
+
+    def test_fit(self):
+        # theta is initialized by zero
+        testee = PoissonRegressionSAG(eta=0.00005, max_iters=100)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
+        assert_array_almost_equal(
+            testee.theta, np.array([0.064, 0.197, -0.042]), decimal=3)
+        loss = testee.loss_function(testee.theta, self.X, self.y)
+        assert_almost_equal(loss, 2.406, places=4)
+        # theta is initialized by random value
+        testee = PoissonRegressionSAG(eta=0.00005, max_iters=100)
+        testee.fit(self.X, self.y)
+
+    def test_fit_without_shuffling(self):
+        # theta is initialized by zero
+        testee = PoissonRegressionSAG(
+            eta=0.00005, max_iters=100, shuffle=False)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
+        assert_array_almost_equal(
+            testee.theta, np.array([0.06463, 0.1967, -0.0412]), decimal=4)
+        loss = testee.loss_function(testee.theta, self.X, self.y)
+        assert_almost_equal(loss, 2.4060, places=4)
+        # theta is initialized by random value
+        testee = PoissonRegressionSAG(
+            eta=0.00005, max_iters=100, shuffle=False)
         testee.fit(self.X, self.y)

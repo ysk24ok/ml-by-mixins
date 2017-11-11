@@ -4,6 +4,7 @@ from ..optimizers import (
     ScipyOptimizerMixin,
     GradientDescentMixin,
     StochasticGradientDescentMixin,
+    StochasticAverageGradientMixin,
     NewtonMixin
 )
 
@@ -35,6 +36,15 @@ class LogisticRegressionSGD(
         # 1<batch_size<m -> mini-batch SGD
         # batch_size=m   -> GD
         self.batch_size = batch_size
+
+
+class LogisticRegressionSAG(
+        LogisticRegression, StochasticAverageGradientMixin):
+
+    def __init__(self, shuffle: bool=True, **kargs):
+        super().__init__(**kargs)
+        # shuffle training samples every iteration
+        self.shuffle = shuffle
 
 
 class LogisticRegressionNewton(LogisticRegression, NewtonMixin):

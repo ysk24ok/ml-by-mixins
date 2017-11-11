@@ -8,6 +8,7 @@ from mlbymxn.glm import (
     LogisticRegressionScipy,
     LogisticRegressionGD,
     LogisticRegressionSGD,
+    LogisticRegressionSAG,
     LogisticRegressionNewton
 )
 from mlbymxn.utils import load_data
@@ -123,6 +124,41 @@ class TestLogisticRegressionSGD(TestCase):
         # mini-batch SGD: theta is initialized by random value
         testee = LogisticRegressionSGD(
             eta=0.001, max_iters=100, batch_size=5, shuffle=False)
+        testee.fit(self.X, self.y)
+
+
+class TestLogisticRegressionSAG(TestCase):
+
+    def setUp(self):
+        self.X, self.y = load_data('ex2data1.txt')
+        self.initial_theta = np.zeros((self.X.shape[1],))
+
+    def test_fit(self):
+        # theta is initialized by zero
+        testee = LogisticRegressionSAG(eta=0.00002, max_iters=100)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
+        assert_array_almost_equal(
+            testee.theta, np.array([-0.0137, 0.0105, 0.0006]), decimal=4)
+        loss = testee.loss_function(testee.theta, self.X, self.y)
+        assert_almost_equal(loss, 0.6289, places=4)
+        # theta is initialized by random value
+        testee = LogisticRegressionSAG(eta=0.00002, max_iters=100)
+        testee.fit(self.X, self.y)
+
+    def test_fit_without_shuffling(self):
+        # theta is initialized by zero
+        testee = LogisticRegressionSAG(
+            eta=0.00002, max_iters=100, shuffle=False)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
+        assert_array_almost_equal(
+            testee.theta, np.array([-0.0137, 0.0105, 0.0006]), decimal=4)
+        loss = testee.loss_function(testee.theta, self.X, self.y)
+        assert_almost_equal(loss, 0.6289, places=4)
+        # theta is initialized by random value
+        testee = LogisticRegressionSAG(
+            eta=0.00002, max_iters=100, shuffle=False)
         testee.fit(self.X, self.y)
 
 
