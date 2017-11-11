@@ -77,7 +77,17 @@ class TestLinearRegressionSGD(TestCase):
 
     def test_fit_sgd(self):
         # SGD: theta is initialized by zero
-        testee = LinearRegressionSGD(eta=0.01, max_iters=100)
+        testee = LinearRegressionSGD(eta=0.001, max_iters=100)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
+        # SGD: theta is initialized by random value
+        testee = LinearRegressionSGD(eta=0.001, max_iters=100)
+        testee.fit(self.X, self.y)
+
+    def test_fit_sgd_without_shuffling(self):
+        # SGD: theta is initialized by zero
+        testee = LinearRegressionSGD(
+            eta=0.01, max_iters=100, shuffle=False)
         testee.initialize_theta(self.initial_theta)
         testee.fit(self.X, self.y)
         assert_array_almost_equal(
@@ -85,13 +95,25 @@ class TestLinearRegressionSGD(TestCase):
         loss = testee.loss_function(testee.theta, self.X, self.y)
         assert_almost_equal(loss, 5.1779, places=4)
         # SGD: theta is initialized by random value
-        testee = LinearRegressionSGD(eta=0.01, max_iters=100)
+        testee = LinearRegressionSGD(
+            eta=0.01, max_iters=100, shuffle=False)
         testee.fit(self.X, self.y)
 
     def test_fit_minibatch_sgd(self):
         # mini-batch SGD: theta is initialized by zero
         testee = LinearRegressionSGD(
-            eta=0.01, max_iters=100, batch_size=5)
+            eta=0.001, max_iters=100, batch_size=5)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
+        # mini-batch SGD: theta is initialized by random value
+        testee = LinearRegressionSGD(
+            eta=0.001, max_iters=100, batch_size=5)
+        testee.fit(self.X, self.y)
+
+    def test_fit_minibatch_sgd_without_shuffling(self):
+        # mini-batch SGD: theta is initialized by zero
+        testee = LinearRegressionSGD(
+            eta=0.01, max_iters=100, batch_size=5, shuffle=False)
         testee.initialize_theta(self.initial_theta)
         testee.fit(self.X, self.y)
         assert_array_almost_equal(
@@ -100,7 +122,7 @@ class TestLinearRegressionSGD(TestCase):
         assert_almost_equal(loss, 5.6355, places=4)
         # mini-batch SGD: theta is initialized by random value
         testee = LinearRegressionSGD(
-            eta=0.01, max_iters=100, batch_size=5)
+            eta=0.01, max_iters=100, batch_size=5, shuffle=False)
         testee.fit(self.X, self.y)
 
 

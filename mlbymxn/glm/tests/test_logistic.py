@@ -80,12 +80,23 @@ class TestLogisticRegressionSGD(TestCase):
         testee = LogisticRegressionSGD(eta=0.001, max_iters=100)
         testee.initialize_theta(self.initial_theta)
         testee.fit(self.X, self.y)
+        # SGD: theta is initialized by random value
+        testee = LogisticRegressionSGD(eta=0.001, max_iters=100)
+        testee.fit(self.X, self.y)
+
+    def test_fit_sgd_without_shuffling(self):
+        # SGD: theta is initialized by zero
+        testee = LogisticRegressionSGD(
+            eta=0.001, max_iters=100, shuffle=False)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
         assert_array_almost_equal(
             testee.theta, np.array([-0.7419, 0.0441, 0.0347]), decimal=4)
         loss = testee.loss_function(testee.theta, self.X, self.y)
         assert_almost_equal(loss, 1.3992, places=4)
         # SGD: theta is initialized by random value
-        testee = LogisticRegressionSGD(eta=0.001, max_iters=100)
+        testee = LogisticRegressionSGD(
+            eta=0.001, max_iters=100, shuffle=False)
         testee.fit(self.X, self.y)
 
     def test_fit_minibatch_sgd(self):
@@ -94,13 +105,24 @@ class TestLogisticRegressionSGD(TestCase):
             eta=0.001, max_iters=100, batch_size=5)
         testee.initialize_theta(self.initial_theta)
         testee.fit(self.X, self.y)
+        # mini-batch SGD: theta is initialized by random value
+        testee = LogisticRegressionSGD(
+            eta=0.001, max_iters=100, batch_size=5)
+        testee.fit(self.X, self.y)
+
+    def test_fit_minibatch_sgd_without_shuffling(self):
+        # mini-batch SGD: theta is initialized by zero
+        testee = LogisticRegressionSGD(
+            eta=0.001, max_iters=100, batch_size=5, shuffle=False)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
         assert_array_almost_equal(
             testee.theta, np.array([-0.1409, 0.041, 0.0084]), decimal=4)
         loss = testee.loss_function(testee.theta, self.X, self.y)
         assert_almost_equal(loss, 1.0397, places=4)
         # mini-batch SGD: theta is initialized by random value
         testee = LogisticRegressionSGD(
-            eta=0.001, max_iters=100, batch_size=5)
+            eta=0.001, max_iters=100, batch_size=5, shuffle=False)
         testee.fit(self.X, self.y)
 
 

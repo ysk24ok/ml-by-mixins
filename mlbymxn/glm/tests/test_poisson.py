@@ -79,12 +79,23 @@ class TestPoissonRegressionSGD(TestCase):
         testee = PoissonRegressionSGD(eta=0.001, max_iters=100)
         testee.initialize_theta(self.initial_theta)
         testee.fit(self.X, self.y)
+        # SGD: theta is initialized by random value
+        testee = PoissonRegressionSGD(eta=0.001, max_iters=100)
+        testee.fit(self.X, self.y)
+
+    def test_fit_sgd_without_shuffling(self):
+        # SGD: theta is initialized by zero
+        testee = PoissonRegressionSGD(
+            eta=0.001, max_iters=100, shuffle=False)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
         assert_array_almost_equal(
             testee.theta, np.array([0.5149, 0.1372, 0.2389]), decimal=4)
         loss = testee.loss_function(testee.theta, self.X, self.y)
         assert_almost_equal(loss, 2.4553, places=4)
         # SGD: theta is initialized by random value
-        testee = PoissonRegressionSGD(eta=0.001, max_iters=100)
+        testee = PoissonRegressionSGD(
+            eta=0.001, max_iters=100, shuffle=False)
         testee.fit(self.X, self.y)
 
     def test_fit_minibatch_sgd(self):
@@ -93,11 +104,22 @@ class TestPoissonRegressionSGD(TestCase):
             eta=0.001, max_iters=100, batch_size=5)
         testee.initialize_theta(self.initial_theta)
         testee.fit(self.X, self.y)
+        # mini-batch SGD: theta is initialized by random value
+        testee = PoissonRegressionSGD(
+            eta=0.001, max_iters=100, batch_size=5)
+        testee.fit(self.X, self.y)
+
+    def test_fit_minibatch_sgd_without_shuffling(self):
+        # mini-batch SGD: theta is initialized by zero
+        testee = PoissonRegressionSGD(
+            eta=0.001, max_iters=100, batch_size=5, shuffle=False)
+        testee.initialize_theta(self.initial_theta)
+        testee.fit(self.X, self.y)
         assert_array_almost_equal(
             testee.theta, np.array([0.1834, 0.1874, -0.1095]), decimal=4)
         loss = testee.loss_function(testee.theta, self.X, self.y)
         assert_almost_equal(loss, 2.3972, places=4)
         # mini-batch SGD: theta is initialized by random value
         testee = PoissonRegressionSGD(
-            eta=0.001, max_iters=100, batch_size=5)
+            eta=0.001, max_iters=100, batch_size=5, shuffle=False)
         testee.fit(self.X, self.y)
