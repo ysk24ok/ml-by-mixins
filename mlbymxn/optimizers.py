@@ -17,7 +17,7 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
             print('initial cost: {0:.6f}'.format(cost))
         num_iters = 1
         while True:
-            self.update_theta(self.theta, X, y)
+            self.update_theta(X, y)
             if self.verbose is True:
                 cost = self.loss_function(self.theta, X, y)
                 print('iter: {0}, cost: {1:.6f}'.format(num_iters, cost))
@@ -26,7 +26,7 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
             num_iters += 1
 
     @abstractmethod
-    def update_theta(self, theta, X, y):
+    def update_theta(self, X, y):
         pass
 
 
@@ -52,14 +52,14 @@ class ScipyOptimizerMixin(object):
 
 class GradientDescentMixin(BaseOptimizerMixin):
 
-    def update_theta(self, theta, X, y):
-        grad = self.gradient(theta, X, y)
+    def update_theta(self, X, y):
+        grad = self.gradient(self.theta, X, y)
         self.theta -= self.eta * grad
 
 
 class StochasticGradientDescentMixin(BaseOptimizerMixin):
 
-    def update_theta(self, theta, X, y):
+    def update_theta(self, X, y):
         m, n = X.shape
         # shuffle X and y while maintaining the correspondance of each sample
         if self.shuffle is True:
@@ -72,14 +72,14 @@ class StochasticGradientDescentMixin(BaseOptimizerMixin):
             y_partial = y[p:n]
             if len(X_partial) < self.batch_size:
                 break
-            grad = self.gradient(theta, X_partial, y_partial)
+            grad = self.gradient(self.theta, X_partial, y_partial)
             self.theta -= self.eta * grad
             num_sub_iters += 1
 
 
 class NewtonMixin(BaseOptimizerMixin):
 
-    def update_theta(self, theta, X, y):
-        grad = self.gradient(theta, X, y)
-        hessian = self.hessian(theta, X)
+    def update_theta(self, X, y):
+        grad = self.gradient(self.theta, X, y)
+        hessian = self.hessian(self.theta, X)
         self.theta -= self.eta * np.linalg.inv(hessian) @ grad
