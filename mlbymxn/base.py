@@ -22,3 +22,11 @@ class BaseML(object):
     def initialize_theta(self, initial_theta):
         # NOTE: bias term should be contained in initial_theta
         self.theta = initial_theta
+
+
+class OnlineML(BaseML):
+
+    def __init__(self, shuffle: bool=True, **kargs):
+        super().__init__(**kargs)
+        # shuffle training samples every iteration
+        self.shuffle = shuffle

@@ -1,4 +1,4 @@
-from ..base import BaseML
+from ..base import BaseML, OnlineML
 from ..loss_functions import LogLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -14,6 +14,11 @@ class LogisticRegression(BaseML, LogLossMixin):
     pass
 
 
+class LogisticRegressionOnline(OnlineML, LogLossMixin):
+
+    pass
+
+
 class LogisticRegressionScipy(LogisticRegression, ScipyOptimizerMixin):
 
     pass
@@ -25,12 +30,10 @@ class LogisticRegressionGD(LogisticRegression, GradientDescentMixin):
 
 
 class LogisticRegressionSGD(
-        LogisticRegression, StochasticGradientDescentMixin):
+        LogisticRegressionOnline, StochasticGradientDescentMixin):
 
-    def __init__(self, shuffle: bool=True, batch_size: int=1, **kargs):
+    def __init__(self, batch_size: int=1, **kargs):
         super().__init__(**kargs)
-        # shuffle training samples every iteration
-        self.shuffle = shuffle
         # number of training samples to be used in gradient calculation
         # batch_size=1   -> SGD
         # 1<batch_size<m -> mini-batch SGD
@@ -39,12 +42,9 @@ class LogisticRegressionSGD(
 
 
 class LogisticRegressionSAG(
-        LogisticRegression, StochasticAverageGradientMixin):
+        LogisticRegressionOnline, StochasticAverageGradientMixin):
 
-    def __init__(self, shuffle: bool=True, **kargs):
-        super().__init__(**kargs)
-        # shuffle training samples every iteration
-        self.shuffle = shuffle
+    pass
 
 
 class LogisticRegressionNewton(LogisticRegression, NewtonMixin):

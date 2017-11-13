@@ -1,4 +1,4 @@
-from ..base import BaseML
+from ..base import BaseML, OnlineML
 from ..loss_functions import PoissonLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -14,6 +14,11 @@ class PoissonRegression(BaseML, PoissonLossMixin):
     pass
 
 
+class PoissonRegressionOnline(OnlineML, PoissonLossMixin):
+
+    pass
+
+
 class PoissonRegressionScipy(PoissonRegression, ScipyOptimizerMixin):
 
     pass
@@ -24,12 +29,11 @@ class PoissonRegressionGD(PoissonRegression, GradientDescentMixin):
     pass
 
 
-class PoissonRegressionSGD(PoissonRegression, StochasticGradientDescentMixin):
+class PoissonRegressionSGD(
+        PoissonRegressionOnline, StochasticGradientDescentMixin):
 
-    def __init__(self, shuffle: bool=True, batch_size: int=1, **kargs):
+    def __init__(self, batch_size: int=1, **kargs):
         super().__init__(**kargs)
-        # shuffle training samples every iteration
-        self.shuffle = shuffle
         # number of training samples to be used in gradient calculation
         # batch_size=1   -> SGD
         # 1<batch_size<m -> mini-batch SGD
@@ -37,12 +41,10 @@ class PoissonRegressionSGD(PoissonRegression, StochasticGradientDescentMixin):
         self.batch_size = batch_size
 
 
-class PoissonRegressionSAG(PoissonRegression, StochasticAverageGradientMixin):
+class PoissonRegressionSAG(
+        PoissonRegressionOnline, StochasticAverageGradientMixin):
 
-    def __init__(self, shuffle: bool=True, **kargs):
-        super().__init__(**kargs)
-        # shuffle training samples every iteration
-        self.shuffle = shuffle
+    pass
 
 
 class PoissonRegressionNewton(PoissonRegression, NewtonMixin):

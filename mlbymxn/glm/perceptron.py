@@ -1,4 +1,4 @@
-from ..base import BaseML
+from ..base import OnlineML
 from ..loss_functions import HingeLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -6,17 +6,15 @@ from ..optimizers import (
 )
 
 
-class BasePerceptron(BaseML, HingeLossMixin):
+class BasePerceptron(OnlineML, HingeLossMixin):
 
-    def __init__(self, shuffle: bool=True, **kargs):
+    def __init__(self, **kargs):
         # learning rate is set to 1 by default
         if 'eta' not in kargs:
             kargs['eta'] = 1
         super().__init__(**kargs)
         # threshold for hinge loss
         self.threshold = 0.0
-        # shuffle training samples every iteration
-        self.shuffle = shuffle
         # number of training samples to be used in gradient calculation
         self.batch_size = 1
 
