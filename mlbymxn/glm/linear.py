@@ -1,4 +1,5 @@
 from ..base import BaseML, OnlineML
+from ..activation_functions import IdentityActivationFunctionMixin
 from ..loss_functions import SquaredLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -9,12 +10,14 @@ from ..optimizers import (
 )
 
 
-class LinearRegression(BaseML, SquaredLossMixin):
+class LinearRegression(
+        BaseML, SquaredLossMixin, IdentityActivationFunctionMixin):
 
     pass
 
 
-class LinearRegressionOnline(OnlineML, SquaredLossMixin):
+class LinearRegressionOnline(
+        OnlineML, SquaredLossMixin, IdentityActivationFunctionMixin):
 
     pass
 

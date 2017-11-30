@@ -1,4 +1,5 @@
 from ..base import BaseML, OnlineML
+from ..activation_functions import ExponentialActivationFunctionMixin
 from ..loss_functions import PoissonLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -9,12 +10,14 @@ from ..optimizers import (
 )
 
 
-class PoissonRegression(BaseML, PoissonLossMixin):
+class PoissonRegression(
+        BaseML, PoissonLossMixin, ExponentialActivationFunctionMixin):
 
     pass
 
 
-class PoissonRegressionOnline(OnlineML, PoissonLossMixin):
+class PoissonRegressionOnline(
+        OnlineML, PoissonLossMixin, ExponentialActivationFunctionMixin):
 
     pass
 

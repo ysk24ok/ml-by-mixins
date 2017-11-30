@@ -7,22 +7,22 @@ from scipy.misc import factorial
 class BaseLossMixin(object, metaclass=ABCMeta):
 
     @abstractmethod
-    def predict(self, X):
+    def predict(self, theta, X):
         pass
 
     @abstractmethod
-    def loss_function(self, X, y):
+    def loss_function(self, theta, X, y):
         pass
 
     @abstractmethod
-    def gradient(self, X, y):
+    def gradient(self, theta, X, y):
         pass
 
 
 class SquaredLossMixin(BaseLossMixin):
 
     def predict(self, theta, X):
-        return X @ theta
+        return self.activation_function(X @ theta)
 
     def loss_function(self, theta, X, y) -> float:
         m = X.shape[0]
@@ -32,9 +32,13 @@ class SquaredLossMixin(BaseLossMixin):
         return loss / (2 * m)
 
     def gradient(self, theta, X, y):
-        m, n = X.shape
+        m = X.shape[0]
+        z = self.predict(theta, X)
+        grad = X.T @ ((z - y) * self.activation_function_gradient(z))
+        """
         err = self.predict(theta, X) - y
         grad = X.T @ err
+        """
         grad += self.l2_reg * np.append(0, theta[1:])
         return grad / m
 
@@ -45,43 +49,45 @@ class SquaredLossMixin(BaseLossMixin):
 
 class LogLossMixin(BaseLossMixin):
 
-    def _sigmoid(self, z):
-        # Avoid 'RuntimeWarning: overflow encountered in exp'
-        f = lambda x: 1 / (1 + np.exp(-x)) if -x < 500 else self.eps
-        return np.vectorize(f)(z)
-
     def predict(self, theta, X):
-        return self._sigmoid(X @ theta)
+        return self.activation_function(X @ theta)
 
     def loss_function(self, theta, X, y) -> float:
         m = X.shape[0]
-        prob = self.predict(theta, X)
-        # Avoid 'RuntimeWarning: divide by zero encountered in log'
-        prob = np.clip(prob, a_min=self.eps, a_max=1-self.eps)
-        loss_pos = y @ np.log(prob)
-        loss_neg = (1-y) @ np.log(1-prob)
-        loss = - (loss_pos + loss_neg) / m
+        z = self.predict(theta, X)
+        #loss_pos = y @ np.log(z)
+        #loss_neg = (1-y) @ np.log(1-z)
+        loss_pos = y * np.log(z)
+        loss_neg = (1-y) * np.log(1-z)
+        loss = - np.sum(loss_pos + loss_neg) / m
         loss += self.l2_reg * np.sum(theta[1:] ** 2) / (2 * m)
         return loss
 
     def gradient(self, theta, X, y):
         m = X.shape[0]
+        z = self.predict(theta, X)
+        grad_pos = y * self.activation_function_gradient(z) / z
+        grad_neg = - (1-y) * self.activation_function_gradient(z) / (1-z)
+        grad = - X.T @ (grad_pos + grad_neg)
+        """
         err = self.predict(theta, X) - y
         grad = X.T @ err
+        """
         grad += self.l2_reg * np.append(0, theta[1:])
         return grad / m
 
     def hessian(self, theta, X):
         m = X.shape[0]
-        prob = self._sigmoid(X @ theta)
-        return prob @ prob * X.T @ X / m
+        z = self.activation_function(X @ theta)
+        return z @ z * X.T @ X / m
 
 
 class HingeLossMixin(BaseLossMixin):
 
     def predict(self, theta, X):
-        z = X @ theta
-        return np.vectorize(lambda x: 1 if x >= 0 else -1)(z)
+        # TODO: neg_label=-1 only if it's Perceptron
+        #       maybe neg_label should be a property of ML class
+        return self.activation_function(X @ theta, neg_label=-1)
 
     def _loss(self, theta, X, y):
         m = X.shape[0]
@@ -102,7 +108,7 @@ class HingeLossMixin(BaseLossMixin):
 class PoissonLossMixin(BaseLossMixin):
 
     def predict(self, theta, X):
-        return np.exp(X @ theta)
+        return self.activation_function(X @ theta)
 
     def loss_function(self, theta, X, y) -> float:
         m = X.shape[0]
@@ -113,8 +119,12 @@ class PoissonLossMixin(BaseLossMixin):
 
     def gradient(self, theta, X, y):
         m = X.shape[0]
+        z = self.predict(theta, X)
+        grad = - X.T @ ((y / z - 1) * self.activation_function_gradient(z))
+        """
         err = self.predict(theta, X) - y
         grad = X.T @ err
+        """
         grad += self.l2_reg * np.append(0, theta[1:])
         return grad / m
 

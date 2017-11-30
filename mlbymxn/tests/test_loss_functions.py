@@ -6,18 +6,14 @@ from numpy.testing import assert_array_almost_equal
 from scipy.optimize import check_grad
 
 from mlbymxn.base import BaseML
-from mlbymxn.loss_functions import (
-    SquaredLossMixin,
-    LogLossMixin,
-    HingeLossMixin,
-    PoissonLossMixin
+from mlbymxn.loss_functions import HingeLossMixin
+from mlbymxn.tests import (
+    MLWithSquaredLoss,
+    MLWithLogLoss,
+    MLWithPoissonLoss,
+    MLWithHingeLoss
 )
 from mlbymxn.utils import load_data
-
-
-class MLWithSquaredLoss(BaseML, SquaredLossMixin):
-
-    pass
 
 
 class TestSquaredLoss(TestCase):
@@ -49,7 +45,7 @@ class TestSquaredLoss(TestCase):
         assert_array_almost_equal(
             got, np.array([-5.8391, -65.3288]), decimal=4)
         # theta is initialized by test value
-        self.testee.initialize_theta(np.array([-1 , 2]))
+        self.testee.initialize_theta(np.array([-1, 2]))
         got = self.testee.gradient(self.testee.theta, self.X, self.y)
         assert_array_almost_equal(
             got, np.array([9.4805, 89.3192]), decimal=4)
@@ -97,28 +93,12 @@ class TestSquaredLossWithL2Reg(TestCase):
         assert_almost_equal(got, 0, places=5)
 
 
-class MLWithLogLoss(BaseML, LogLossMixin):
-
-    pass
-
-
 class TestLogLoss(TestCase):
 
     def setUp(self):
         self.testee = MLWithLogLoss()
         self.X, self.y = load_data('ex2data1.txt')
         self.n = self.X.shape[1]
-
-    def test_sigmoid(self):
-        # scalar
-        got = self.testee._sigmoid(1)
-        assert_almost_equal(got, 0.7311, places=4)
-        got = self.testee._sigmoid(-1000)
-        assert_almost_equal(got, 0, places=4)
-        # array
-        got = self.testee._sigmoid(np.array([1,0,-100,100,-1000]))
-        expected = np.array([0.7311, 0.5, 0, 1, 0])
-        assert_array_almost_equal(got, expected, decimal=4)
 
     def test_predict(self):
         self.testee.initialize_theta(
@@ -198,12 +178,6 @@ class TestLogLossWithL2Reg(TestCase):
         assert_almost_equal(got, 0, places=4)
 
 
-class MLWithHingeLoss(BaseML, HingeLossMixin):
-
-    def __init__(self, threshold: float):
-        self.threshold = threshold
-
-
 class TestHingeLoss(TestCase):
 
     def setUp(self):
@@ -261,11 +235,6 @@ class TestHingeLoss(TestCase):
             testee.loss_function, testee.gradient,
             testee.theta, self.X, self.y)
         #assert_almost_equal(got, 0, places=4)
-
-
-class MLWithPoissonLoss(BaseML, PoissonLossMixin):
-
-    pass
 
 
 class TestPoissonLoss(TestCase):

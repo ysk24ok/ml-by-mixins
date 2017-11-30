@@ -1,4 +1,5 @@
 from ..base import OnlineML
+from ..activation_functions import StepActivationFunctionMixin
 from ..loss_functions import HingeLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -6,7 +7,7 @@ from ..optimizers import (
 )
 
 
-class BasePerceptron(OnlineML, HingeLossMixin):
+class BasePerceptron(OnlineML, HingeLossMixin, StepActivationFunctionMixin):
 
     def __init__(self, **kargs):
         # learning rate is set to 1 by default

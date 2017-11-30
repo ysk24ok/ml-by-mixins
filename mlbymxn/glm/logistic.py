@@ -1,4 +1,5 @@
 from ..base import BaseML, OnlineML
+from ..activation_functions import SigmoidActivationFunctionMixin
 from ..loss_functions import LogLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -9,12 +10,14 @@ from ..optimizers import (
 )
 
 
-class LogisticRegression(BaseML, LogLossMixin):
+class LogisticRegression(
+        BaseML, LogLossMixin, SigmoidActivationFunctionMixin):
 
     pass
 
 
-class LogisticRegressionOnline(OnlineML, LogLossMixin):
+class LogisticRegressionOnline(
+        OnlineML, LogLossMixin, SigmoidActivationFunctionMixin):
 
     pass
 
