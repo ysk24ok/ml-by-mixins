@@ -14,7 +14,9 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
 
     def fit(self, X, y):
         m, n = X.shape
-        # when theta is not initialized
+        # initialize theta when it is not initialized yet
+        # XXX:  this parameter initialization doesn't work in case of nn
+        #       theta must be set before fit() is called
         if len(self.theta) == 0:
             self.initialize_theta(np.random.rand(n) - 0.5)
         if self.verbose is True:
@@ -42,6 +44,8 @@ class ScipyOptimizerMixin(object):
     def fit(self, X, y):
         m, n = X.shape
         # when theta is not initialized
+        # XXX:  this parameter initialization doesn't work in case of nn
+        #       theta must be set before fit() is called
         if len(self.theta) == 0:
             self.initialize_theta(np.random.rand(n) - 0.5)
         res = minimize(

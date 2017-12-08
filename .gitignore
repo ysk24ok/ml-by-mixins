@@ -1,3 +1,4 @@
 *.bak
 __pycache__
 venvdir
+mlbymxn/data/ex4data1/*.csv
