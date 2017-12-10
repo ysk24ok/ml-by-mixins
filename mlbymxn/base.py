@@ -7,8 +7,8 @@ class BaseML(object):
 
     def __init__(
             self, max_iters: int=100, eta: float=0.01, l2_reg: float=0.0,
-            verbose: bool=False):
-        # maximum numebr of iterations
+            verbose: bool=False, shuffle: bool=True, batch_size: int=1):
+        # maximum number of iterations
         self.max_iters = max_iters
         # eta: learning rate
         self.eta = eta
@@ -18,15 +18,16 @@ class BaseML(object):
         self.l2_reg = l2_reg
         # verbosity flag
         self.verbose = verbose
+        # shuffle training samples every iteration
+        # NOTE: only used for online-fashion optimizer
+        self.shuffle = shuffle
+        # number of training samples to be used for each (forward) pass
+        # batch_size=1   -> SGD
+        # 1<batch_size<m -> mini-batch SGD
+        # batch_size=m   -> GD
+        # NOTE: only used for online-fashion optimizer
+        self.batch_size = batch_size
 
     def initialize_theta(self, initial_theta):
         # NOTE: bias term should be contained in initial_theta
         self.theta = initial_theta
-
-
-class OnlineML(BaseML):
-
-    def __init__(self, shuffle: bool=True, **kargs):
-        super().__init__(**kargs)
-        # shuffle training samples every iteration
-        self.shuffle = shuffle

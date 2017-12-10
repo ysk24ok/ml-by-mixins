@@ -1,4 +1,4 @@
-from ..base import BaseML, OnlineML
+from ..base import BaseML
 from ..activation_functions import ExponentialActivationFunctionMixin
 from ..loss_functions import PoissonLossMixin
 from ..optimizers import (
@@ -16,12 +16,6 @@ class PoissonRegression(
     pass
 
 
-class PoissonRegressionOnline(
-        OnlineML, PoissonLossMixin, ExponentialActivationFunctionMixin):
-
-    pass
-
-
 class PoissonRegressionScipy(PoissonRegression, ScipyOptimizerMixin):
 
     pass
@@ -33,19 +27,13 @@ class PoissonRegressionGD(PoissonRegression, GradientDescentMixin):
 
 
 class PoissonRegressionSGD(
-        PoissonRegressionOnline, StochasticGradientDescentMixin):
+        PoissonRegression, StochasticGradientDescentMixin):
 
-    def __init__(self, batch_size: int=1, **kargs):
-        super().__init__(**kargs)
-        # number of training samples to be used in gradient calculation
-        # batch_size=1   -> SGD
-        # 1<batch_size<m -> mini-batch SGD
-        # batch_size=m   -> GD
-        self.batch_size = batch_size
+    pass
 
 
 class PoissonRegressionSAG(
-        PoissonRegressionOnline, StochasticAverageGradientMixin):
+        PoissonRegression, StochasticAverageGradientMixin):
 
     pass
 
