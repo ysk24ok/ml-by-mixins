@@ -46,10 +46,10 @@ class TestPerceptron(TestCase):
         testee.fit(self.X, self.y)
         expected_theta = np.array([-5.1842e-15, -5.3786e-15, -1.8530e-15])
         assert_array_almost_equal(
-            testee.theta * 1e+15, expected_theta * 1e+15, decimal=4)
+            testee.theta, expected_theta, decimal=14)
         loss = testee.loss_function(testee.theta, self.X, self.y)
         expected_loss = 3.2615e-13
-        assert_almost_equal(loss * 1e+13, expected_loss * 1e+13, places=4)
+        assert_almost_equal(loss, expected_loss, places=12)
         # theta is initialized by random value
         testee = Perceptron(max_iters=100)
         testee.fit(self.X, self.y)
