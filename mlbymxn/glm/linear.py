@@ -3,10 +3,10 @@ from ..activation_functions import IdentityActivationFunctionMixin
 from ..loss_functions import SquaredLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
-    GradientDescentMixin,
-    StochasticGradientDescentMixin,
-    StochasticAverageGradientMixin,
-    NewtonMixin
+    GDOptimizerMixin,
+    SAGOptimizerMixin,
+    SGDOptimizerMixin,
+    NewtonOptimizerMixin
 )
 
 
@@ -21,23 +21,21 @@ class LinearRegressionScipy(LinearRegression, ScipyOptimizerMixin):
     pass
 
 
-class LinearRegressionGD(LinearRegression, GradientDescentMixin):
+class LinearRegressionGD(LinearRegression, GDOptimizerMixin):
 
     pass
 
 
-class LinearRegressionSGD(
-        LinearRegression, StochasticGradientDescentMixin):
+class LinearRegressionSGD(LinearRegression, SGDOptimizerMixin):
 
     pass
 
 
-class LinearRegressionSAG(
-        LinearRegression, StochasticAverageGradientMixin):
+class LinearRegressionSAG(LinearRegression, SAGOptimizerMixin):
 
     pass
 
 
-class LinearRegressionNewton(LinearRegression, NewtonMixin):
+class LinearRegressionNewton(LinearRegression, NewtonOptimizerMixin):
 
     pass

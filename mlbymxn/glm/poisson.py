@@ -3,10 +3,10 @@ from ..activation_functions import ExponentialActivationFunctionMixin
 from ..loss_functions import PoissonLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
-    GradientDescentMixin,
-    StochasticGradientDescentMixin,
-    StochasticAverageGradientMixin,
-    NewtonMixin
+    GDOptimizerMixin,
+    SGDOptimizerMixin,
+    SAGOptimizerMixin,
+    NewtonOptimizerMixin
 )
 
 
@@ -21,23 +21,21 @@ class PoissonRegressionScipy(PoissonRegression, ScipyOptimizerMixin):
     pass
 
 
-class PoissonRegressionGD(PoissonRegression, GradientDescentMixin):
+class PoissonRegressionGD(PoissonRegression, GDOptimizerMixin):
 
     pass
 
 
-class PoissonRegressionSGD(
-        PoissonRegression, StochasticGradientDescentMixin):
+class PoissonRegressionSGD(PoissonRegression, SGDOptimizerMixin):
 
     pass
 
 
-class PoissonRegressionSAG(
-        PoissonRegression, StochasticAverageGradientMixin):
+class PoissonRegressionSAG(PoissonRegression, SAGOptimizerMixin):
 
     pass
 
 
-class PoissonRegressionNewton(PoissonRegression, NewtonMixin):
+class PoissonRegressionNewton(PoissonRegression, NewtonOptimizerMixin):
 
     pass

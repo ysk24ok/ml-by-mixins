@@ -6,7 +6,7 @@ from .layers import InputLayer, FullyConnectedLayerSigmoid, OutputLayerLogLoss
 from ..base import BaseML
 from ..optimizers import (
     ScipyOptimizerMixin,
-    GradientDescentMixin
+    GDOptimizerMixin
 )
 from ..utils import add_bias
 
@@ -101,6 +101,6 @@ class MultiLayerPerceptronScipy(MultiLayerPerceptron, ScipyOptimizerMixin):
     pass
 
 
-class MultiLayerPerceptronGD(MultiLayerPerceptron, GradientDescentMixin):
+class MultiLayerPerceptronGD(MultiLayerPerceptron, GDOptimizerMixin):
 
     pass

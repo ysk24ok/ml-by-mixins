@@ -3,7 +3,7 @@ from ..activation_functions import StepActivationFunctionMixin
 from ..loss_functions import HingeLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
-    StochasticGradientDescentMixin
+    SGDOptimizerMixin
 )
 
 
@@ -22,6 +22,6 @@ class PerceptronScipy(BasePerceptron, ScipyOptimizerMixin):
     pass
 
 
-class Perceptron(BasePerceptron, StochasticGradientDescentMixin):
+class Perceptron(BasePerceptron, SGDOptimizerMixin):
 
     pass

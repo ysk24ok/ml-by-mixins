@@ -3,10 +3,10 @@ from ..activation_functions import SigmoidActivationFunctionMixin
 from ..loss_functions import LogLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
-    GradientDescentMixin,
-    StochasticGradientDescentMixin,
-    StochasticAverageGradientMixin,
-    NewtonMixin
+    GDOptimizerMixin,
+    SGDOptimizerMixin,
+    SAGOptimizerMixin,
+    NewtonOptimizerMixin
 )
 
 
@@ -21,23 +21,22 @@ class LogisticRegressionScipy(LogisticRegression, ScipyOptimizerMixin):
     pass
 
 
-class LogisticRegressionGD(LogisticRegression, GradientDescentMixin):
+class LogisticRegressionGD(LogisticRegression, GDOptimizerMixin):
 
     pass
 
 
-class LogisticRegressionSGD(
-        LogisticRegression, StochasticGradientDescentMixin):
+class LogisticRegressionSGD(LogisticRegression, SGDOptimizerMixin):
 
     pass
 
 
 class LogisticRegressionSAG(
-        LogisticRegression, StochasticAverageGradientMixin):
+        LogisticRegression, SAGOptimizerMixin):
 
     pass
 
 
-class LogisticRegressionNewton(LogisticRegression, NewtonMixin):
+class LogisticRegressionNewton(LogisticRegression, NewtonOptimizerMixin):
 
     pass

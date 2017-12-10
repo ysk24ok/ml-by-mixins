@@ -61,14 +61,14 @@ class ScipyOptimizerMixin(object):
         self.theta = res.x
 
 
-class GradientDescentMixin(BaseOptimizerMixin):
+class GDOptimizerMixin(BaseOptimizerMixin):
 
     def update_theta(self, X, y):
         grad = self.gradient(self.theta, X, y)
         self.theta -= self.eta * grad
 
 
-class StochasticGradientDescentMixin(BaseOptimizerMixin):
+class SGDOptimizerMixin(BaseOptimizerMixin):
 
     def update_theta(self, X, y):
         m, n = X.shape
@@ -89,7 +89,7 @@ class StochasticGradientDescentMixin(BaseOptimizerMixin):
             num_sub_iters += 1
 
 
-class StochasticAverageGradientMixin(BaseOptimizerMixin):
+class SAGOptimizerMixin(BaseOptimizerMixin):
 
     def before_fit(self, X, y):
         m, n = X.shape
@@ -121,7 +121,7 @@ class StochasticAverageGradientMixin(BaseOptimizerMixin):
             num_sub_iters += 1
 
 
-class NewtonMixin(BaseOptimizerMixin):
+class NewtonOptimizerMixin(BaseOptimizerMixin):
 
     def update_theta(self, X, y):
         grad = self.gradient(self.theta, X, y)
