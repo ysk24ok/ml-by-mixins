@@ -6,13 +6,16 @@ class BaseML(object):
     eps = np.finfo(float).eps
 
     def __init__(
-            self, max_iters: int=100, eta: float=0.01, l2_reg: float=0.0,
+            self, max_iters: int=100, eta: float=0.01,
+            initialization_type: str='normal', l2_reg: float=0.0,
             verbose: bool=False, shuffle: bool=True, batch_size: int=1):
         # maximum number of iterations
         self.max_iters = max_iters
         # eta: learning rate
         self.eta = eta
-        # theta: weight vector whose shape is (n,)
+        # weight initialization type
+        self.initialization_type = initialization_type
+        # weight vector
         self.theta = np.array([])
         # l2_reg: coefficient for L2 regularization term
         self.l2_reg = l2_reg
@@ -28,6 +31,19 @@ class BaseML(object):
         # NOTE: only used for online-fashion optimizer
         self.batch_size = batch_size
 
-    def initialize_theta(self, initial_theta):
-        # NOTE: bias term should be contained in initial_theta
-        self.theta = initial_theta
+    def initialize_theta(self, X):
+        self._initialize_theta(X.shape[1])
+
+    def _initialize_theta(self, n: int):
+        # NOTE: bias term should be contained in n
+        if self.initialization_type == 'normal':
+            self.theta = np.random.randn(n)
+        elif self.initialization_type == 'uniform':
+            self.theta = np.random.rand(n) - 0.5
+        elif self.initialization_type == 'zero':
+            self.theta = np.zeros((n,))
+        elif self.initialization_type == 'one':
+            self.theta = np.ones((n,))
+        else:
+            raise ValueError('Undefined weight initialization type: {}'.format(
+                self.initialization_type))

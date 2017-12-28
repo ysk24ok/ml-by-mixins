@@ -26,6 +26,16 @@ class MultiLayerPerceptron(BaseML):
         self.output_layer = OutputLayerLogLoss(output_layer_size, l2_reg)
         super(MultiLayerPerceptron, self).__init__(**kargs)
 
+    def initialize_theta(self, X):
+        prev_layer_size = X.shape[1]
+        layers = self.hidden_layers + [self.output_layer]
+        n = 0
+        for current_layer in layers:
+            current_theta_size = prev_layer_size * current_layer.size
+            n += current_theta_size
+            prev_layer_size = current_layer.size + 1    # bias term
+        super(MultiLayerPerceptron, self)._initialize_theta(n)
+
     def _theta_for_l2reg(self, theta):
         if len(theta.shape) == 1:
             return np.append(0, theta[1:])

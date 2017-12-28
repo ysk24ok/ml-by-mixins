@@ -13,12 +13,9 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
         pass
 
     def fit(self, X, y):
-        m, n = X.shape
         # initialize theta when it is not initialized yet
-        # XXX:  this parameter initialization doesn't work in case of nn
-        #       theta must be set before fit() is called
         if len(self.theta) == 0:
-            self.initialize_theta(np.random.rand(n) - 0.5)
+            self.initialize_theta(X)
         if self.verbose is True:
             cost = self.loss_function(self.theta, X, y)
             print('initial cost: {0:.6f}'.format(cost))
@@ -42,12 +39,9 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
 class ScipyOptimizerMixin(object):
 
     def fit(self, X, y):
-        m, n = X.shape
-        # when theta is not initialized
-        # XXX:  this parameter initialization doesn't work in case of nn
-        #       theta must be set before fit() is called
+        # initialize theta when it is not initialized yet
         if len(self.theta) == 0:
-            self.initialize_theta(np.random.rand(n) - 0.5)
+            self.initialize_theta(X)
         res = minimize(
             self.loss_function,
             self.theta,
