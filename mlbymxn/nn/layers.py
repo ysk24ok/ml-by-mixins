@@ -76,7 +76,7 @@ class BaseFullyConnectedLayer(BaseHiddenLayer):
         gradient:   n_current+1 x n_next
         """
         m = X.shape[0]
-        z = self.forwardprop(theta, X)
+        z = X @ theta
         dLdA = backprop * self.activation_gradient(z)
         grad = X.T @ dLdA
         grad += self.l2_reg * self._theta_for_l2reg(theta)
@@ -94,7 +94,7 @@ class BaseFullyConnectedLayer(BaseHiddenLayer):
         ------
         backprop:   m x n_current
         """
-        z = self.forwardprop(theta, X)
+        z = X @ theta
         dLdA = backprop * self.activation_gradient(z)
         # exclude coefficients for bias term
         return (dLdA @ theta.T)[:, 1:]

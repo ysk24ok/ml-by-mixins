@@ -27,12 +27,10 @@ class TestIdentityActivation(TestCase):
 
     def test_activation_gradient(self):
         # scalar
-        z = self.testee.activation(10)
-        got = self.testee.activation_gradient(z)
+        got = self.testee.activation_gradient(10)
         assert_equal(got, 1)
         # array
-        z = self.testee.activation(np.array([1,2,3]))
-        got = self.testee.activation_gradient(z)
+        got = self.testee.activation_gradient(np.array([1,2,3]))
         assert_equal(got, 1)
         #assert_array_equal(got, np.array([1,1,1]))
 
@@ -53,12 +51,10 @@ class TestExponentialActivation(TestCase):
 
     def test_activation_gradient(self):
         # scalar
-        z = self.testee.activation(1)
-        got = self.testee.activation_gradient(z)
+        got = self.testee.activation_gradient(1)
         assert_almost_equal(got, 2.7183, places=4)
         # array
-        z = self.testee.activation(np.array([1,2,3]))
-        got = self.testee.activation_gradient(z)
+        got = self.testee.activation_gradient(np.array([1,2,3]))
         expected = np.array([2.7183, 7.3891, 20.0855])
         assert_array_almost_equal(got, expected, decimal=4)
 
@@ -81,12 +77,10 @@ class TestSigmoidActivation(TestCase):
 
     def test_activation_gradient(self):
         # scalar
-        z = self.testee.activation(1)
-        got = self.testee.activation_gradient(z)
+        got = self.testee.activation_gradient(1)
         assert_almost_equal(got, 0.1966, places=4)
         # array
-        z = self.testee.activation(np.array([1,2,3]))
-        got = self.testee.activation_gradient(z)
+        got = self.testee.activation_gradient(np.array([1,2,3]))
         expected = np.array([0.1966, 0.105, 0.0452])
         assert_array_almost_equal(got, expected, decimal=4)
 

@@ -40,17 +40,17 @@ class SquaredLossMixin(BaseLossMixin):
 
     def gradient(self, theta, X, y):
         m = X.shape[0]
-        z = self.predict(theta, X)
-        err = (z - y) * self.activation_gradient(z)
-        #err = z - y
+        z = X @ theta
+        err = (self.activation(z) - y) * self.activation_gradient(z)
+        #err = self.predict(theta, X) - y
         grad = X.T @ err
         grad += self.l2_reg * self._theta_for_l2reg(theta)
         return grad / m
 
     def backprop(self, theta, X, y):
-        z = self.predict(theta, X)
-        err = (z - y) * self.activation_gradient(z)
-        #err = z - y
+        z = X @ theta
+        err = (self.activation(z) - y) * self.activation_gradient(z)
+        #err = self.predict(theta, X) - y
         return (err @ theta.T)[:, 1:]
 
     def hessian(self, theta, X):
@@ -65,26 +65,28 @@ class LogLossMixin(BaseLossMixin):
 
     def loss_function(self, theta, X, y) -> float:
         m = X.shape[0]
-        z = self.predict(theta, X)
-        loss_pos = y * np.log(z)
-        loss_neg = (1-y) * np.log(1-z)
+        a = self.predict(theta, X)
+        loss_pos = y * np.log(a)
+        loss_neg = (1-y) * np.log(1-a)
         loss = - np.sum(loss_pos + loss_neg) / m
         loss += self.l2_reg * np.sum(self._theta_for_l2reg(theta) ** 2) / (2 * m)
         return loss
 
     def gradient(self, theta, X, y):
         m = X.shape[0]
-        z = self.predict(theta, X)
-        err = (- y / z + (1-y) / (1-z)) * self.activation_gradient(z)
-        #err = z - y
+        z = X @ theta
+        a = self.activation(z)
+        err = (- y / a + (1-y) / (1-a)) * self.activation_gradient(z)
+        #err = self.predict(theta, X) - y
         grad = X.T @ err
         grad += self.l2_reg * self._theta_for_l2reg(theta)
         return grad / m
 
     def backprop(self, theta, X, y):
-        z = self.predict(theta, X)
-        err = (- y / z + (1-y) / (1-z)) * self.activation_gradient(z)
-        #err = z - y
+        z = X @ theta
+        a = self.activation(z)
+        err = (- y / a + (1-y) / (1-a)) * self.activation_gradient(z)
+        #err = self.predict(theta, X) - y
         return (err @ theta.T)[:, 1:]
 
     def hessian(self, theta, X):
@@ -131,9 +133,9 @@ class PoissonLossMixin(BaseLossMixin):
 
     def gradient(self, theta, X, y):
         m = X.shape[0]
-        z = self.predict(theta, X)
-        err = - (y / z - 1) * self.activation_gradient(z)
-        #err = z - y
+        z = X @ theta
+        err = - (y / self.activation(z) - 1) * self.activation_gradient(z)
+        #err = self.predict(theta, X) - y
         grad = X.T @ err
         grad += self.l2_reg * self._theta_for_l2reg(theta)
         return grad / m
