@@ -1,5 +1,5 @@
 from ..base import BaseML
-from ..activation_functions import StepActivationFunctionMixin
+from ..activation_functions import StepActivationMixin
 from ..loss_functions import HingeLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -7,7 +7,7 @@ from ..optimizers import (
 )
 
 
-class BasePerceptron(BaseML, HingeLossMixin, StepActivationFunctionMixin):
+class BasePerceptron(BaseML, HingeLossMixin, StepActivationMixin):
 
     def __init__(self, **kargs):
         if 'eta' not in kargs:

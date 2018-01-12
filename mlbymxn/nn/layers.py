@@ -1,8 +1,8 @@
 import numpy as np
 
 from ..activation_functions import (
-    IdentityActivationFunctionMixin,
-    SigmoidActivationFunctionMixin
+    IdentityActivationMixin,
+    SigmoidActivationMixin
 )
 from ..loss_functions import LogLossMixin
 
@@ -61,7 +61,7 @@ class BaseFullyConnectedLayer(BaseHiddenLayer):
         ------
         output:     m x n_next
         """
-        return self.activation_function(X @ theta)
+        return self.activation(X @ theta)
 
     def gradient(self, theta, X, backprop):
         """
@@ -77,7 +77,7 @@ class BaseFullyConnectedLayer(BaseHiddenLayer):
         """
         m = X.shape[0]
         z = self.forwardprop(theta, X)
-        dLdA = backprop * self.activation_function_gradient(z)
+        dLdA = backprop * self.activation_gradient(z)
         grad = X.T @ dLdA
         grad += self.l2_reg * self._theta_for_l2reg(theta)
         return grad / m
@@ -95,19 +95,19 @@ class BaseFullyConnectedLayer(BaseHiddenLayer):
         backprop:   m x n_current
         """
         z = self.forwardprop(theta, X)
-        dLdA = backprop * self.activation_function_gradient(z)
+        dLdA = backprop * self.activation_gradient(z)
         # exclude coefficients for bias term
         return (dLdA @ theta.T)[:, 1:]
 
 
 class FullyConnectedLayerIdentity(
-        BaseFullyConnectedLayer, IdentityActivationFunctionMixin):
+        BaseFullyConnectedLayer, IdentityActivationMixin):
 
     pass
 
 
 class FullyConnectedLayerSigmoid(
-        BaseFullyConnectedLayer, SigmoidActivationFunctionMixin):
+        BaseFullyConnectedLayer, SigmoidActivationMixin):
 
     pass
 
@@ -121,6 +121,6 @@ class BaseOutputLayer(BaseLayer):
 
 
 class OutputLayerLogLoss(
-        BaseOutputLayer, LogLossMixin, SigmoidActivationFunctionMixin):
+        BaseOutputLayer, LogLossMixin, SigmoidActivationMixin):
 
     pass

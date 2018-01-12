@@ -1,9 +1,9 @@
 from mlbymxn.base import BaseML
 from mlbymxn.activation_functions import (
-    IdentityActivationFunctionMixin,
-    ExponentialActivationFunctionMixin,
-    SigmoidActivationFunctionMixin,
-    StepActivationFunctionMixin,
+    IdentityActivationMixin,
+    ExponentialActivationMixin,
+    SigmoidActivationMixin,
+    StepActivationMixin,
 )
 from mlbymxn.loss_functions import (
     SquaredLossMixin,
@@ -13,23 +13,23 @@ from mlbymxn.loss_functions import (
 )
 
 class MLWithSquaredLoss(
-        BaseML, SquaredLossMixin, IdentityActivationFunctionMixin):
+        BaseML, SquaredLossMixin, IdentityActivationMixin):
 
     pass
 
 
 class MLWithPoissonLoss(
-        BaseML, PoissonLossMixin, ExponentialActivationFunctionMixin):
+        BaseML, PoissonLossMixin, ExponentialActivationMixin):
 
     pass
 
 
-class MLWithLogLoss(BaseML, LogLossMixin, SigmoidActivationFunctionMixin):
+class MLWithLogLoss(BaseML, LogLossMixin, SigmoidActivationMixin):
 
     pass
 
 
-class MLWithHingeLoss(BaseML, HingeLossMixin, StepActivationFunctionMixin):
+class MLWithHingeLoss(BaseML, HingeLossMixin, StepActivationMixin):
 
     def __init__(self, threshold: float):
         self.threshold = threshold

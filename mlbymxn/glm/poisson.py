@@ -1,5 +1,5 @@
 from ..base import BaseML
-from ..activation_functions import ExponentialActivationFunctionMixin
+from ..activation_functions import ExponentialActivationMixin
 from ..loss_functions import PoissonLossMixin
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -11,7 +11,7 @@ from ..optimizers import (
 
 
 class PoissonRegression(
-        BaseML, PoissonLossMixin, ExponentialActivationFunctionMixin):
+        BaseML, PoissonLossMixin, ExponentialActivationMixin):
 
     pass
 
