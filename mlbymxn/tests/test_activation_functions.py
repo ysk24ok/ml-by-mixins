@@ -8,7 +8,9 @@ from mlbymxn.tests import (
     MLWithSquaredLoss,
     MLWithPoissonLoss,
     MLWithLogLoss,
-    MLWithHingeLoss
+    MLWithHingeLoss,
+    MLWithTanhActivation,
+    MLWithReLUActivation
 )
 
 
@@ -109,3 +111,35 @@ class TestStepActivation(TestCase):
     def test_activation_gradient(self):
         # TODO
         pass
+
+
+class TestTanhActivation(TestCase):
+
+    def setUp(self):
+        self.testee = MLWithTanhActivation()
+
+    def test_activation(self):
+        got = self.testee.activation(np.array([-1,1,3]))
+        expected = np.array([-0.76159418, 0.76159418, 0.99505478])
+        assert_array_almost_equal(got, expected, decimal=4)
+
+    def test_activation_gradient(self):
+        got = self.testee.activation_gradient(np.array([-1,1,3]))
+        expected = np.array([0.4199743, 0.4199743, 0.00986598])
+        assert_array_almost_equal(got, expected, decimal=4)
+
+
+class TestReLUActivation(TestCase):
+
+    def setUp(self):
+        self.testee = MLWithReLUActivation()
+
+    def test_activation(self):
+        got = self.testee.activation(np.array([-5,0,5]))
+        expected = np.array([0,0,5])
+        assert_array_equal(got, expected)
+
+    def test_activation_gradient(self):
+        got = self.testee.activation_gradient(np.array([-5,0,5]))
+        expected = np.array([0,1,1])
+        assert_array_equal(got, expected)

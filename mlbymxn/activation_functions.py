@@ -53,3 +53,22 @@ class StepActivationMixin(BaseActivationMixin):
     def activation_gradient(self, z):
         # TODO
         pass
+
+
+class TanhActivationMixin(BaseActivationMixin):
+
+    def activation(self, z):
+        return np.tanh(z)
+
+    def activation_gradient(self, z):
+        return 1 - np.square(np.tanh(z))
+
+
+class ReLUActivationMixin(BaseActivationMixin):
+
+    def activation(self, z):
+        return np.maximum(z, 0)
+
+    def activation_gradient(self, z):
+        f = lambda x: 1 if x >= 0 else 0
+        return np.vectorize(f)(z)

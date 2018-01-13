@@ -4,6 +4,8 @@ from mlbymxn.activation_functions import (
     ExponentialActivationMixin,
     SigmoidActivationMixin,
     StepActivationMixin,
+    TanhActivationMixin,
+    ReLUActivationMixin,
 )
 from mlbymxn.loss_functions import (
     SquaredLossMixin,
@@ -33,3 +35,13 @@ class MLWithHingeLoss(BaseML, HingeLossMixin, StepActivationMixin):
 
     def __init__(self, threshold: float):
         self.threshold = threshold
+
+
+class MLWithTanhActivation(BaseML, TanhActivationMixin):
+
+    pass
+
+
+class MLWithReLUActivation(BaseML, ReLUActivationMixin):
+
+    pass

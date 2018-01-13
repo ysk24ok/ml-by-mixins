@@ -2,7 +2,9 @@ import numpy as np
 
 from ..activation_functions import (
     IdentityActivationMixin,
-    SigmoidActivationMixin
+    SigmoidActivationMixin,
+    TanhActivationMixin,
+    ReLUActivationMixin
 )
 from ..loss_functions import LogLossMixin
 
@@ -108,6 +110,18 @@ class FullyConnectedLayerIdentity(
 
 class FullyConnectedLayerSigmoid(
         BaseFullyConnectedLayer, SigmoidActivationMixin):
+
+    pass
+
+
+class FullyConnectedLayerTanh(
+        BaseFullyConnectedLayer, TanhActivationMixin):
+
+    pass
+
+
+class FullyConnectedLayerReLU(
+        BaseFullyConnectedLayer, ReLUActivationMixin):
 
     pass
 

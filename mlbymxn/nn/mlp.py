@@ -2,7 +2,13 @@ from typing import List
 
 import numpy as np
 
-from .layers import InputLayer, FullyConnectedLayerSigmoid, OutputLayerLogLoss
+from .layers import (
+    InputLayer,
+    FullyConnectedLayerSigmoid,
+    FullyConnectedLayerTanh,
+    FullyConnectedLayerReLU,
+    OutputLayerLogLoss
+)
 from ..base import BaseML
 from ..optimizers import (
     ScipyOptimizerMixin,
@@ -15,14 +21,19 @@ class MultiLayerPerceptron(BaseML):
 
     def __init__(
             self, hidden_layer_sizes: List[int], output_layer_size: int,
-            **kargs):
-        # TODO: Add 'activation' as an argument
-        #       For now, only sigmoid function is used for layers
-        l2_reg = 0.0
-        if 'l2_reg' in kargs:
-            l2_reg = kargs['l2_reg']
+            activation: str='sigmoid', **kargs):
+        l2_reg = kargs['l2_reg'] if 'l2_reg' in kargs else 0.0
+        # activation for hidden layers
+        if activation == 'sigmoid':
+            hidden_layer = FullyConnectedLayerSigmoid
+        elif activation == 'tanh':
+            hidden_layer = FullyConnectedLayerTanh
+        elif activation == 'relu':
+            hidden_layer = FullyConnectedLayerReLU
+        else:
+            raise ValueError('Undefined activation: {}'.format(activation))
         self.hidden_layers = [
-            FullyConnectedLayerSigmoid(size, l2_reg) for size in hidden_layer_sizes]
+            hidden_layer(size, l2_reg) for size in hidden_layer_sizes]
         self.output_layer = OutputLayerLogLoss(output_layer_size, l2_reg)
         super(MultiLayerPerceptron, self).__init__(**kargs)
 
