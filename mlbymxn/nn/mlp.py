@@ -12,7 +12,8 @@ from .layers import (
 from ..base import BaseML
 from ..optimizers import (
     ScipyOptimizerMixin,
-    GDOptimizerMixin
+    GDOptimizerMixin,
+    MomentumSGDOptimizerMixin,
 )
 from ..utils import add_bias
 
@@ -123,5 +124,11 @@ class MultiLayerPerceptronScipy(MultiLayerPerceptron, ScipyOptimizerMixin):
 
 
 class MultiLayerPerceptronGD(MultiLayerPerceptron, GDOptimizerMixin):
+
+    pass
+
+
+class MultiLayerPerceptronMomentumSGD(
+        MultiLayerPerceptron, MomentumSGDOptimizerMixin):
 
     pass

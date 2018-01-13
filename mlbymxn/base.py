@@ -8,7 +8,8 @@ class BaseML(object):
     def __init__(
             self, max_iters: int=100, eta: float=0.01,
             initialization_type: str='normal', l2_reg: float=0.0,
-            verbose: bool=False, shuffle: bool=True, batch_size: int=1):
+            verbose: bool=False, shuffle: bool=True, batch_size: int=1,
+            momentum: float=0.9):
         # maximum number of iterations
         self.max_iters = max_iters
         # eta: learning rate
@@ -30,6 +31,9 @@ class BaseML(object):
         # batch_size=m   -> GD
         # NOTE: only used for online-fashion optimizer
         self.batch_size = batch_size
+        # momentum term
+        # NOTE: only used in MomentumSGDOptimizer
+        self.momentum = momentum
 
     def initialize_theta(self, X):
         self._initialize_theta(X.shape[1])

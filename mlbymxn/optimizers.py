@@ -83,6 +83,33 @@ class SGDOptimizerMixin(BaseOptimizerMixin):
             num_sub_iters += 1
 
 
+class MomentumSGDOptimizerMixin(BaseOptimizerMixin):
+
+    def before_fit(self, X, y):
+        self.prev_update_term = np.zeros((len(self.theta),))
+
+    def update_theta(self, X, y):
+        m, n = X.shape
+        indices = np.arange(m)
+        if self.shuffle is True:
+            np.random.shuffle(indices)
+        num_sub_iters = 1
+        for idx in indices:
+            p_idx = self.batch_size * (num_sub_iters - 1)
+            n_idx = self.batch_size * num_sub_iters
+            idx = indices[p_idx:n_idx]
+            X_partial = X[idx]
+            y_partial = y[idx]
+            if X_partial.shape[0] < self.batch_size:
+                break
+            grad = self.gradient(self.theta, X_partial, y_partial)
+            #update_term = self.momentum * self.prev_update_term + (1 - self.momentum) * grad
+            update_term = self.momentum * self.prev_update_term + grad
+            self.theta -= self.eta * update_term
+            self.prev_update_term = update_term
+            num_sub_iters += 1
+
+
 class SAGOptimizerMixin(BaseOptimizerMixin):
 
     def before_fit(self, X, y):
