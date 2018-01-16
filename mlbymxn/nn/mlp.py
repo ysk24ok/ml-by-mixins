@@ -60,25 +60,24 @@ class MultiLayerPerceptron(BaseML):
         prev_layer = InputLayer(X)
         layers = self.hidden_layers + [self.output_layer]
         for current_layer in layers:
-            prev_layer_size = prev_layer.matrix.shape[1]
+            # reshape weight parameters into 2d array
+            prev_layer_size = prev_layer.A.shape[1]
             current_theta_size = prev_layer_size * current_layer.size
             idx_to_end = idx_to_start + current_theta_size
             current_theta_unrolled = theta[idx_to_start:idx_to_end]
-            current_theta = current_theta_unrolled.reshape(
+            current_layer.theta = current_theta_unrolled.reshape(
                 (prev_layer_size, current_layer.size))
-            current_layer.theta = current_theta
-            # output layer
+            # forwardprop
+            current_layer.A, current_layer.Z = current_layer.forwardprop(
+                current_layer.theta, prev_layer.A)
+            # output layer does not need bias term
             if current_layer.layer_type == 'output':
-                # does not need bias term for output layer
-                current_layer.matrix = current_layer.forwardprop(
-                    current_theta, prev_layer.matrix)
                 break
-            current_layer.matrix = add_bias(current_layer.forwardprop(
-                current_theta, prev_layer.matrix))
             # prepare for next layer
+            current_layer.A = add_bias(current_layer.A)
             prev_layer = current_layer
             idx_to_start += current_theta_size
-        return self.output_layer.matrix
+        return self.output_layer.A
 
     def loss_function(self, theta, X, Y):
         # forwardprop
@@ -89,7 +88,7 @@ class MultiLayerPerceptron(BaseML):
         for current_layer in self.hidden_layers:
             loss += self.l2_reg * np.sum(self._theta_for_l2reg(current_layer.theta) ** 2) / (2 * m)
         loss += self.output_layer.loss_function(
-            self.output_layer.theta, self.hidden_layers[-1].matrix, Y)
+            self.output_layer.theta, self.hidden_layers[-1].A, Y)
         return loss
 
     def gradient(self, theta, X, Y):
@@ -97,27 +96,23 @@ class MultiLayerPerceptron(BaseML):
         self.predict(theta, X)
         # backprop
         gradient = np.array([])
-        backprop = None
-        prev_layer = self.output_layer
+        current_layer = self.output_layer
         layers = [InputLayer(X)] + self.hidden_layers
         layers.reverse()
-        for current_layer in layers:
-            if prev_layer.layer_type == 'output':
-                grad = prev_layer.gradient(
-                    prev_layer.theta, current_layer.matrix, Y)
-                backprop = prev_layer.backprop(
-                    prev_layer.theta, current_layer.matrix, Y)
+        for prev_layer in layers:
+            if current_layer.layer_type == 'output':
+                grad, dLdA = current_layer.backprop(
+                    current_layer.theta, prev_layer.A, Y,
+                    current_layer.Z, current_layer.A)
             else:
-                grad = prev_layer.gradient(
-                    prev_layer.theta, current_layer.matrix, backprop)
-                backprop = prev_layer.backprop(
-                    prev_layer.theta, current_layer.matrix, backprop)
+                grad, dLdA = current_layer.backprop(
+                    current_layer.theta, prev_layer.A, dLdA,
+                    current_layer.Z)
             gradient = np.concatenate((grad.flatten(), gradient))
-            prev_layer = current_layer
+            current_layer = prev_layer
         return gradient
 
 
-# XXX: Does not finish
 class MultiLayerPerceptronScipy(MultiLayerPerceptron, ScipyOptimizerMixin):
 
     pass
