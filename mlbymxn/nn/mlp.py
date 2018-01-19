@@ -23,7 +23,6 @@ class MultiLayerPerceptron(BaseML):
     def __init__(
             self, hidden_layer_sizes: List[int], output_layer_size: int,
             activation: str='sigmoid', **kargs):
-        l2_reg = kargs['l2_reg'] if 'l2_reg' in kargs else 0.0
         # activation for hidden layers
         if activation == 'sigmoid':
             hidden_layer = FullyConnectedLayerSigmoid
@@ -33,9 +32,15 @@ class MultiLayerPerceptron(BaseML):
             hidden_layer = FullyConnectedLayerReLU
         else:
             raise ValueError('Undefined activation: {}'.format(activation))
-        self.hidden_layers = [
-            hidden_layer(size, l2_reg) for size in hidden_layer_sizes]
-        self.output_layer = OutputLayerLogLoss(output_layer_size, l2_reg)
+        # generate layers
+        l2_reg = kargs['l2_reg'] if 'l2_reg' in kargs else 0.0
+        use_naive_impl = kargs['use_naive_impl'] if 'use_naive_impl' in kargs else False
+        self.hidden_layers = []
+        for size in hidden_layer_sizes:
+            self.hidden_layers.append(
+                hidden_layer(size, l2_reg=l2_reg, use_naive_impl=use_naive_impl))
+        self.output_layer = OutputLayerLogLoss(
+            output_layer_size, l2_reg=l2_reg, use_naive_impl=use_naive_impl)
         super(MultiLayerPerceptron, self).__init__(**kargs)
 
     def initialize_theta(self, X):

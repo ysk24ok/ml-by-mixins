@@ -42,6 +42,8 @@ class SquaredLossMixin(BaseLossMixin):
         return A - Y
 
     def _dLdZ(self, theta, Z, Y, A_cached=None):
+        if self.use_naive_impl is False and self.activation_type == 'identity':
+            return Z - Y
         A = A_cached
         if A is None:
             A = self.activation(Z)
@@ -81,6 +83,8 @@ class LogLossMixin(BaseLossMixin):
         A = A_cached
         if A is None:
             A = self.activation(Z)
+        if self.use_naive_impl is False and self.activation_type == 'sigmoid':
+            return A - Y
         return self._dLdA(A, Y) * self.activation_gradient(Z)
 
     def gradient(self, theta, X, y):
@@ -140,6 +144,8 @@ class PoissonLossMixin(BaseLossMixin):
         A = A_cached
         if A is None:
             A = self.activation(Z)
+        if self.use_naive_impl is False and self.activation_type == 'exponential':
+            return A - Y
         return self._dLdA(A, Y) * self.activation_gradient(Z)
 
     def gradient(self, theta, X, y):

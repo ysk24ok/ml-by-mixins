@@ -16,6 +16,8 @@ class BaseActivationMixin(object):
 
 class IdentityActivationMixin(BaseActivationMixin):
 
+    activation_type = 'identity'
+
     def activation(self, z):
         return z
 
@@ -25,6 +27,8 @@ class IdentityActivationMixin(BaseActivationMixin):
 
 class ExponentialActivationMixin(BaseActivationMixin):
 
+    activation_type = 'exponential'
+
     def activation(self, z):
         return np.exp(z)
 
@@ -33,6 +37,8 @@ class ExponentialActivationMixin(BaseActivationMixin):
 
 
 class SigmoidActivationMixin(BaseActivationMixin):
+
+    activation_type = 'sigmoid'
 
     def activation(self, z):
         # Avoid 'RuntimeWarning: overflow encountered in exp'
@@ -47,6 +53,8 @@ class SigmoidActivationMixin(BaseActivationMixin):
 
 class StepActivationMixin(BaseActivationMixin):
 
+    activation_type = 'step'
+
     def activation(self, z, neg_label: int=0):
         return np.vectorize(lambda x: 1 if x >= 0 else neg_label)(z)
 
@@ -57,6 +65,8 @@ class StepActivationMixin(BaseActivationMixin):
 
 class TanhActivationMixin(BaseActivationMixin):
 
+    activation_type = 'tanh'
+
     def activation(self, z):
         return np.tanh(z)
 
@@ -65,6 +75,8 @@ class TanhActivationMixin(BaseActivationMixin):
 
 
 class ReLUActivationMixin(BaseActivationMixin):
+
+    activation_type = 'relu'
 
     def activation(self, z):
         return np.maximum(z, 0)

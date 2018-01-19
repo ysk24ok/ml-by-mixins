@@ -9,7 +9,7 @@ class BaseML(object):
             self, max_iters: int=100, eta: float=0.01,
             initialization_type: str='normal', l2_reg: float=0.0,
             verbose: bool=False, shuffle: bool=True, batch_size: int=1,
-            momentum: float=0.9):
+            momentum: float=0.9, use_naive_impl: bool=False):
         # maximum number of iterations
         self.max_iters = max_iters
         # eta: learning rate
@@ -34,6 +34,8 @@ class BaseML(object):
         # momentum term
         # NOTE: only used in MomentumSGDOptimizer
         self.momentum = momentum
+        # True only in debug or unittest
+        self.use_naive_impl = use_naive_impl
 
     def initialize_theta(self, X):
         self._initialize_theta(X.shape[1])

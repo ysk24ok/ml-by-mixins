@@ -24,12 +24,15 @@ class BaseLayer(object):
 
     eps = np.finfo(float).eps
 
-    def __init__(self, layer_size: int, l2_reg: float=0):
+    def __init__(
+            self, layer_size: int, l2_reg: float=0,
+            use_naive_impl: float=False):
         self.size = layer_size
         self.l2_reg = l2_reg
         self.theta = None
         self.A = None
         self.Z = None
+        self.use_naive_impl = use_naive_impl
 
     def forwardprop(self, theta, A_prev):
         """
