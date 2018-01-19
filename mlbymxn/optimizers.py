@@ -39,15 +39,19 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
 class ScipyOptimizerMixin(object):
 
     def fit(self, X, y):
+        options = {'maxiter': self.max_iters}
         # initialize theta when it is not initialized yet
         if len(self.theta) == 0:
             self.initialize_theta(X)
+        if self.verbose is True:
+            options['disp'] = True
         res = minimize(
             self.loss_function,
             self.theta,
             args=(X, y),
             method='L-BFGS-B',
             jac=self.gradient,
+            options=options
         )
         if res.success is not True:
             raise ValueError('Failed. status: {}, message: {}'.format(
