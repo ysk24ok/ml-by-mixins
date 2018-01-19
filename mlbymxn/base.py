@@ -3,8 +3,6 @@ import numpy as np
 
 class BaseML(object):
 
-    eps = np.finfo(float).eps
-
     def __init__(
             self, max_iters: int=100, eta: float=0.01,
             initialization_type: str='normal', l2_reg: float=0.0,

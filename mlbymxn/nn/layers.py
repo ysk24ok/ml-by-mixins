@@ -22,8 +22,6 @@ class InputLayer(object):
 
 class BaseLayer(object):
 
-    eps = np.finfo(float).eps
-
     def __init__(
             self, layer_size: int, l2_reg: float=0,
             use_naive_impl: float=False):

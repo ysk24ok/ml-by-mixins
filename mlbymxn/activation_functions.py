@@ -40,15 +40,19 @@ class SigmoidActivationMixin(BaseActivationMixin):
 
     activation_type = 'sigmoid'
 
-    def activation(self, z):
-        # Avoid 'RuntimeWarning: overflow encountered in exp'
-        f = lambda x: 1 / (1 + np.exp(-x)) if -x < 500 else self.eps
-        # Avoid 'RuntimeWarning: divide by zero encountered in log'
-        return np.clip(np.vectorize(f)(z), a_min=self.eps, a_max=1-self.eps)
+    def activation(self, Z):
+        # calculate 1 / (1 + np.exp(-Z)) if implemented naively
+        # To avoid 'RuntimeWarning: overflow encountered in exp'
+        Z_clipped = np.clip(Z, -700, np.finfo(float).max)
+        A = 1 + np.exp(-Z_clipped)
+        A **= -1
+        eps = np.finfo(float).eps
+        # To avoid 'RuntimeWarning: divide by zero encountered in log'
+        return np.clip(A, eps, 1-eps)
 
-    def activation_gradient(self, z):
-        a = self.activation(z)
-        return (1-a) * a
+    def activation_gradient(self, Z):
+        A = self.activation(Z)
+        return (1-A) * A
 
 
 class StepActivationMixin(BaseActivationMixin):
@@ -78,9 +82,10 @@ class ReLUActivationMixin(BaseActivationMixin):
 
     activation_type = 'relu'
 
-    def activation(self, z):
-        return np.maximum(z, 0)
+    def activation(self, Z):
+        return np.maximum(Z, 0)
 
-    def activation_gradient(self, z):
-        f = lambda x: 1 if x >= 0 else 0
-        return np.vectorize(f)(z)
+    def activation_gradient(self, Z):
+        Z_copied = np.copy(Z)
+        Z_copied[Z_copied >= 0.0] = 1.0
+        return np.clip(Z_copied, 0, np.finfo(Z_copied.dtype).max)
