@@ -4,14 +4,17 @@ import numpy as np
 class BaseML(object):
 
     def __init__(
-            self, max_iters: int=100, eta: float=0.01,
+            self, max_iters: int=100, eta: float=None,
             initialization_type: str='normal', l2_reg: float=0.0,
             verbose: bool=False, shuffle: bool=True, batch_size: int=1,
-            momentum: float=0.9, use_naive_impl: bool=False):
+            momentum: float=0.9, rmsprop_alpha: float=0.99,
+            adadelta_rho: float=0.95,
+            adam_beta1: float=0.9, adam_beta2: float=0.999, epsilon: float=1e-8,
+            use_naive_impl: bool=False):
         # maximum number of iterations
         self.max_iters = max_iters
         # eta: learning rate
-        self.eta = eta
+        self._set_eta(eta)
         # weight initialization type
         self.initialization_type = initialization_type
         # weight vector
@@ -29,11 +32,36 @@ class BaseML(object):
         # batch_size=m   -> GD
         # NOTE: only used for online-fashion optimizer
         self.batch_size = batch_size
-        # momentum term
-        # NOTE: only used in MomentumSGDOptimizer
+        # exponential weight decay rate used in MomentumSGDOptimizer
         self.momentum = momentum
+        # exponential weight decay rate used in RMSpropOptimizer
+        self.rmsprop_alpha = rmsprop_alpha
+        # exponential weight decay rate used in AdaDeltaOptimizer
+        self.adadelta_rho = adadelta_rho
+        # exponential weight decay rate used in AdamOptimizer
+        self.adam_beta1 = adam_beta1
+        self.adam_beta2 = adam_beta2
+        # small value for numerical stability
+        self.epsilon = epsilon
         # True only in debug or unittest
         self.use_naive_impl = use_naive_impl
+
+    def _set_eta(self, eta: float) -> float:
+        default_eta = 0.01
+        if eta is not None:
+            self.eta = eta
+            return
+        if hasattr(self, 'optimizer_type') is False:
+            self.eta = default_eta
+            return
+        if self.optimizer_type == 'adagrad':
+            self.eta = 0.001
+        elif self.optimizer_type == 'adadelta':
+            self.eta = 1
+        elif self.optimizer_type == 'adam':
+            self.eta = 0.001
+        else:
+            self.eta = default_eta
 
     def initialize_theta(self, X):
         self._initialize_theta(X.shape[1])

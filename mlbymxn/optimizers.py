@@ -12,13 +12,24 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
     def after_fit(self, X, y):
         pass
 
+    @abstractmethod
+    def fit(self, X, y):
+        pass
+
+    @abstractmethod
+    def update_theta(self, X, y):
+        pass
+
+
+class BatchOptimizerMixin(BaseOptimizerMixin):
+
     def fit(self, X, y):
         # initialize theta when it is not initialized yet
         if len(self.theta) == 0:
             self.initialize_theta(X)
         if self.verbose is True:
             cost = self.loss_function(self.theta, X, y)
-            print('initial cost: {0:.6f}'.format(cost))
+            print('iter: 0, cost: {0:.6f}'.format(cost))
         self.before_fit(X, y)
         num_iters = 1
         while True:
@@ -31,18 +42,53 @@ class BaseOptimizerMixin(object, metaclass=ABCMeta):
             num_iters += 1
         self.after_fit(X, y)
 
-    @abstractmethod
-    def update_theta(self, X, y):
-        pass
+
+class MinibatchOptimizerMixin(BaseOptimizerMixin):
+
+    def fit(self, X, y):
+        m = X.shape[0]
+        # initialize theta when it is not initialized yet
+        if len(self.theta) == 0:
+            self.initialize_theta(X)
+        if self.verbose is True:
+            cost = self.loss_function(self.theta, X, y)
+            print('iter: 0, cost: {0:.6f}'.format(cost))
+        self.before_fit(X, y)
+        num_iters = 1
+        while True:     # epoch
+            indices = np.arange(m)
+            if self.shuffle is True:
+                np.random.shuffle(indices)
+            num_sub_iters = 1
+            while True:     # iteration
+                p_idx = self.batch_size * (num_sub_iters - 1)
+                n_idx = self.batch_size * num_sub_iters
+                idx = indices[p_idx:n_idx]
+                X_minibatch = X[idx]
+                y_minibatch = y[idx]
+                if X_minibatch.shape[0] < self.batch_size:
+                    break
+                self.update_theta(X_minibatch, y_minibatch)
+                num_sub_iters += 1
+            if self.verbose is True:
+                cost = self.loss_function(self.theta, X, y)
+                print('iter: {0}, cost: {1:.6f}'.format(num_iters, cost))
+            if num_iters >= self.max_iters:
+                break
+            num_iters += 1
+        self.after_fit(X, y)
 
 
-class ScipyOptimizerMixin(object):
+class ScipyOptimizerMixin(BaseOptimizerMixin):
+
+    optimizer_type = 'scipy'
 
     def fit(self, X, y):
         options = {'maxiter': self.max_iters}
         # initialize theta when it is not initialized yet
         if len(self.theta) == 0:
             self.initialize_theta(X)
+        self.before_fit(X, y)
         if self.verbose is True:
             options['disp'] = True
         res = minimize(
@@ -57,19 +103,45 @@ class ScipyOptimizerMixin(object):
             raise ValueError('Failed. status: {}, message: {}'.format(
                 res.status, res.message))
         self.theta = res.x
+        self.after_fit(X, y)
+
+    def update_theta(self, X, y):
+        pass
 
 
-class GDOptimizerMixin(BaseOptimizerMixin):
+class GDOptimizerMixin(BatchOptimizerMixin):
+
+    optimizer_type = 'gd'
 
     def update_theta(self, X, y):
         grad = self.gradient(self.theta, X, y)
         self.theta -= self.eta * grad
 
 
-class SGDOptimizerMixin(BaseOptimizerMixin):
+class NewtonOptimizerMixin(BatchOptimizerMixin):
+
+    optimizer_type = 'newton'
 
     def update_theta(self, X, y):
-        m, n = X.shape
+        grad = self.gradient(self.theta, X, y)
+        hessian = self.hessian(self.theta, X)
+        self.theta -= self.eta * np.linalg.inv(hessian) @ grad
+
+
+class SAGOptimizerMixin(BatchOptimizerMixin):
+
+    optimizer_type = 'sag'
+
+    def before_fit(self, X, y):
+        m = X.shape[0]
+        n = self.theta.shape[0]
+        self.sum_grad = np.zeros((n,))
+        self.sum_counts = 0
+        # TODO: need too much memory
+        self.latest_grad = np.zeros((m, n))
+
+    def update_theta(self, X, y):
+        m = X.shape[0]
         indices = np.arange(m)
         if self.shuffle is True:
             np.random.shuffle(indices)
@@ -78,64 +150,14 @@ class SGDOptimizerMixin(BaseOptimizerMixin):
             p_idx = self.batch_size * (num_sub_iters - 1)
             n_idx = self.batch_size * num_sub_iters
             idx = indices[p_idx:n_idx]
-            X_partial = X[idx]
-            y_partial = y[idx]
-            if X_partial.shape[0] < self.batch_size:
+            X_minibatch = X[idx]
+            y_minibatch = y[idx]
+            if X_minibatch.shape[0] < self.batch_size:
                 break
-            grad = self.gradient(self.theta, X_partial, y_partial)
-            self.theta -= self.eta * grad
-            num_sub_iters += 1
-
-
-class MomentumSGDOptimizerMixin(BaseOptimizerMixin):
-
-    def before_fit(self, X, y):
-        self.prev_update_term = np.zeros((len(self.theta),))
-
-    def update_theta(self, X, y):
-        m, n = X.shape
-        indices = np.arange(m)
-        if self.shuffle is True:
-            np.random.shuffle(indices)
-        num_sub_iters = 1
-        for idx in indices:
-            p_idx = self.batch_size * (num_sub_iters - 1)
-            n_idx = self.batch_size * num_sub_iters
-            idx = indices[p_idx:n_idx]
-            X_partial = X[idx]
-            y_partial = y[idx]
-            if X_partial.shape[0] < self.batch_size:
-                break
-            grad = self.gradient(self.theta, X_partial, y_partial)
-            #update_term = self.momentum * self.prev_update_term + (1 - self.momentum) * grad
-            update_term = self.momentum * self.prev_update_term + grad
-            self.theta -= self.eta * update_term
-            self.prev_update_term = update_term
-            num_sub_iters += 1
-
-
-class SAGOptimizerMixin(BaseOptimizerMixin):
-
-    def before_fit(self, X, y):
-        m, n = X.shape
-        self.sum_grad = np.zeros((n,))
-        self.sum_counts = 0
-        self.latest_errors = np.zeros((m,))
-
-    def update_theta(self, X, y):
-        m, n = X.shape
-        indices = np.arange(m)
-        if self.shuffle is True:
-            np.random.shuffle(indices)
-        num_sub_iters = 1
-        for idx in indices:
-            X_partial = X[idx].reshape((1, n))
-            y_partial = y[idx].reshape((1,))
-            grad = self.gradient(self.theta, X_partial, y_partial)
-            current_err = grad[1] / X[idx][1]
-            prev_err = self.latest_errors[idx]
-            self.sum_grad += X[idx] * (current_err - prev_err)
-            self.latest_errors[idx] = current_err
+            grad = self.gradient(self.theta, X_minibatch, y_minibatch)
+            self.sum_grad -= self.latest_grad[idx[0]]
+            self.sum_grad += grad
+            self.latest_grad[idx[0]] = grad
             self.sum_counts += 1
             # In first iteration, SAG doesn't update theta,
             # just calculates prev_err of all samples
@@ -146,9 +168,94 @@ class SAGOptimizerMixin(BaseOptimizerMixin):
             num_sub_iters += 1
 
 
-class NewtonOptimizerMixin(BaseOptimizerMixin):
+class SGDOptimizerMixin(MinibatchOptimizerMixin):
+
+    optimizer_type = 'sgd'
 
     def update_theta(self, X, y):
         grad = self.gradient(self.theta, X, y)
-        hessian = self.hessian(self.theta, X)
-        self.theta -= self.eta * np.linalg.inv(hessian) @ grad
+        self.theta -= self.eta * grad
+
+
+class MomentumSGDOptimizerMixin(MinibatchOptimizerMixin):
+
+    optimizer_type = 'momentum_sgd'
+
+    def before_fit(self, X, y):
+        self.v = np.zeros(self.theta.shape)
+
+    def update_theta(self, X, y):
+        grad = self.gradient(self.theta, X, y)
+        self.v *= self.momentum
+        self.v += (1 - self.momentum) * grad
+        self.theta -= self.eta * self.v
+
+
+class RMSpropOptimizerMixin(MinibatchOptimizerMixin):
+
+    optimizer_type = 'rmsprop'
+
+    def before_fit(self, X, y):
+        self.s = np.zeros(self.theta.shape)
+
+    def update_theta(self, X, y):
+        grad = self.gradient(self.theta, X, y)
+        self.s *= self.rmsprop_alpha
+        self.s += (1 - self.rmsprop_alpha) * np.square(grad)
+        grad *= (np.sqrt(self.s) + self.epsilon) ** -1
+        self.theta -= self.eta * grad
+
+
+class AdaGradOptimizerMixin(MinibatchOptimizerMixin):
+
+    optimizer_type = 'adagrad'
+
+    def before_fit(self, X, y):
+        self.v = np.zeros(self.theta.shape)
+
+    def update_theta(self, X, y):
+        grad = self.gradient(self.theta, X, y)
+        self.v += np.square(grad)
+        grad *= (np.sqrt(self.v) + self.epsilon) ** -1
+        self.theta -= self.eta * grad
+
+
+class AdaDeltaOptimizerMixin(MinibatchOptimizerMixin):
+
+    optimizer_type = 'adadelta'
+
+    def before_fit(self, X, y):
+        self.v = np.zeros(self.theta.shape)
+        self.s = np.zeros(self.theta.shape)
+
+    def update_theta(self, X, y):
+        grad = self.gradient(self.theta, X, y)
+        self.v *= self.adadelta_rho
+        self.v += (1 - self.adadelta_rho) * np.square(grad)
+        grad *= np.sqrt(self.s + self.epsilon)
+        grad *= np.sqrt(self.v + self.epsilon) ** -1
+        self.s *= self.adadelta_rho
+        self.s += (1 - self.adadelta_rho) * np.square(grad)
+        self.theta -= self.eta * grad
+
+
+class AdamOptimizerMixin(MinibatchOptimizerMixin):
+
+    optimizer_type = 'adam'
+
+    def before_fit(self, X, y):
+        self.v = np.zeros(self.theta.shape)
+        self.s = np.zeros(self.theta.shape)
+        self.t = 1
+
+    def update_theta(self, X, y):
+        grad = self.gradient(self.theta, X, y)
+        self.v *= self.adam_beta1
+        self.v += (1 - self.adam_beta1) * grad
+        self.s *= self.adam_beta2
+        self.s += (1 - self.adam_beta2) * np.square(grad)
+        v_corrected = self.v * ((1 - np.power(self.adam_beta1, self.t)) ** -1)
+        s_corrected = self.s * ((1 - np.power(self.adam_beta2, self.t)) ** -1)
+        self.t += 1
+        v_corrected *= (np.sqrt(s_corrected) + self.epsilon) ** -1
+        self.theta -= self.eta * v_corrected

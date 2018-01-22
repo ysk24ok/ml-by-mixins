@@ -2,5 +2,11 @@ from .mlp import (
     MultiLayerPerceptron,
     MultiLayerPerceptronScipy,
     MultiLayerPerceptronGD,
-    MultiLayerPerceptronMomentumSGD
+    MultiLayerPerceptronSAG,
+    MultiLayerPerceptronSGD,
+    MultiLayerPerceptronMomentumSGD,
+    MultiLayerPerceptronRMSprop,
+    MultiLayerPerceptronAdaGrad,
+    MultiLayerPerceptronAdaDelta,
+    MultiLayerPerceptronAdam,
 )

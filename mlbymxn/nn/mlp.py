@@ -13,7 +13,13 @@ from ..base import BaseML
 from ..optimizers import (
     ScipyOptimizerMixin,
     GDOptimizerMixin,
+    SAGOptimizerMixin,
+    SGDOptimizerMixin,
     MomentumSGDOptimizerMixin,
+    RMSpropOptimizerMixin,
+    AdaGradOptimizerMixin,
+    AdaDeltaOptimizerMixin,
+    AdamOptimizerMixin,
 )
 from ..utils import add_bias
 
@@ -128,7 +134,38 @@ class MultiLayerPerceptronGD(MultiLayerPerceptron, GDOptimizerMixin):
     pass
 
 
+class MultiLayerPerceptronSAG(MultiLayerPerceptron, SAGOptimizerMixin):
+
+    pass
+
+
+class MultiLayerPerceptronSGD(MultiLayerPerceptron, SGDOptimizerMixin):
+
+    pass
+
+
 class MultiLayerPerceptronMomentumSGD(
         MultiLayerPerceptron, MomentumSGDOptimizerMixin):
+
+    pass
+
+
+class MultiLayerPerceptronRMSprop(MultiLayerPerceptron, RMSpropOptimizerMixin):
+
+    pass
+
+
+class MultiLayerPerceptronAdaGrad(MultiLayerPerceptron, AdaGradOptimizerMixin):
+
+    pass
+
+
+class MultiLayerPerceptronAdaDelta(
+        MultiLayerPerceptron, AdaDeltaOptimizerMixin):
+
+    pass
+
+
+class MultiLayerPerceptronAdam(MultiLayerPerceptron, AdamOptimizerMixin):
 
     pass
