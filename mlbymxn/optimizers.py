@@ -30,7 +30,8 @@ class BatchOptimizerMixin(BaseOptimizerMixin):
         if self.verbose is True:
             cost = self.loss_function(self.theta, X, y)
             print('iter: 0, cost: {0:.6f}'.format(cost))
-        self.before_fit(X, y)
+        if self.warm_start is False:
+            self.before_fit(X, y)
         num_iters = 1
         while True:
             self.update_theta(X, y)
@@ -39,6 +40,7 @@ class BatchOptimizerMixin(BaseOptimizerMixin):
                 print('iter: {0}, cost: {1:.6f}'.format(num_iters, cost))
             if num_iters >= self.max_iters:
                 break
+            self.warm_start = True
             num_iters += 1
         self.after_fit(X, y)
 
@@ -53,7 +55,8 @@ class MinibatchOptimizerMixin(BaseOptimizerMixin):
         if self.verbose is True:
             cost = self.loss_function(self.theta, X, y)
             print('iter: 0, cost: {0:.6f}'.format(cost))
-        self.before_fit(X, y)
+        if self.warm_start is False:
+            self.before_fit(X, y)
         num_iters = 1
         while True:     # epoch
             indices = np.arange(m)
@@ -75,6 +78,7 @@ class MinibatchOptimizerMixin(BaseOptimizerMixin):
                 print('iter: {0}, cost: {1:.6f}'.format(num_iters, cost))
             if num_iters >= self.max_iters:
                 break
+            self.warm_start = True
             num_iters += 1
         self.after_fit(X, y)
 
@@ -88,7 +92,8 @@ class ScipyOptimizerMixin(BaseOptimizerMixin):
         # initialize theta when it is not initialized yet
         if len(self.theta) == 0:
             self.initialize_theta(X)
-        self.before_fit(X, y)
+        if self.warm_start is False:
+            self.before_fit(X, y)
         if self.verbose is True:
             options['disp'] = True
         res = minimize(
@@ -102,6 +107,7 @@ class ScipyOptimizerMixin(BaseOptimizerMixin):
         if res.success is not True:
             raise ValueError('Failed. status: {}, message: {}'.format(
                 res.status, res.message))
+        self.warm_start = True
         self.theta = res.x
         self.after_fit(X, y)
 

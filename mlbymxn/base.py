@@ -43,6 +43,7 @@ class BaseML(object):
         self.adam_beta2 = adam_beta2
         # small value for numerical stability
         self.epsilon = epsilon
+        self.warm_start = False
         # True only in debug or unittest
         self.use_naive_impl = use_naive_impl
 
