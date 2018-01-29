@@ -3,7 +3,7 @@ ml-by-mixins
 
 ## Overview
 
-**ml-by-mixins** is my pernonal project where I implement various machine learning algorithms by combining loss functions, activation functions and optimizers. This library provides mixins of them and you can try any combination.
+**ml-by-mixins** is my personal project where I implement various machine learning algorithms by combining loss functions, activation functions and optimizers. This library provides mixins of them and you can try any combination.
 
 For example, if you want poisson regression with log-link function optimized by stochastic average gradient, you can write:
 
@@ -13,16 +13,19 @@ from mlbymxn.loss_functions import PoissonLossMixin
 from mlbymxn.activation_functions import ExponentialActivationMixin
 from mlbymxn.optimizers import SAGOptimizerMixin
 
-class PoissonRegression(
+class PoissonRegressionBySAG(
         BaseML, PoissonLossMixin, ExponentialActivationMixin,
         SAGOptimizerMixin):
     pass
 
-poisson_reg_sag = PoissonRegressionSAG(eta=0.001, max_iters=50)
+poisson_reg_sag = PoissonRegressionBySAG(eta=0.001, max_iters=50)
 poisson_reg_sag.fit(X, y)
 ```
 
-Since the link function is the inverse of the activation function, here `ExponentialActivationMixin` is combined with `PoissonLossMixin`.If you want poisson regression with identity-link function, all you have to do is to switch `ExponentialActivationMixin` to `IdentityActivationMixin`.
+Since the link function is the inverse of the activation function
+(it sounds a little strange to use the terminology 'activation' for generalized linear model, but I think the link function and the activation function are related concepts),
+here `ExponentialActivationMixin` is combined with `PoissonLossMixin`.
+If you want poisson regression with identity-link function, all you have to do is to switch `ExponentialActivationMixin` to `IdentityActivationMixin`.
 
 Provided mixins are as follows:
 
@@ -96,7 +99,7 @@ Here is the basic form of loss function with L2 regularization over all training
 
 <img src="https://latex.codecogs.com/gif.latex?l_{i}(\boldsymbol{\theta})=-\left(y_{i}\log(z_{i})&plus;\left(1-y_{i}\right)\log\left(1-z_{i}\right)\right),\quad\left(z_{i}=sigmoid\left(\boldsymbol{x}^{(i)}\boldsymbol{\theta}\right)\right)" title="l_{i}(\boldsymbol{\theta})=-\left(y_{i}\log(z_{i})+\left(1-y_{i}\right)\log\left(1-z_{i}\right)\right),\quad\left(z_{i}=sigmoid\left(\boldsymbol{x}^{(i)}\boldsymbol{\theta}\right)\right)" />
 
-### gradient
+#### gradient
 
 <img src="https://latex.codecogs.com/gif.latex?\boldsymbol{g}_{i}(\boldsymbol{\theta})=\cfrac{\partial&space;l_{i}(\boldsymbol{\theta})}{\partial\boldsymbol{\theta}}=\left(z_{i}-y_{i}\right)\boldsymbol{x}_{i},\quad\left(z_{i}=sigmoid(\boldsymbol{x}_{i}\boldsymbol{\theta})\right)" title="\boldsymbol{g}_{i}(\boldsymbol{\theta})=\cfrac{\partial l_{i}(\boldsymbol{\theta})}{\partial\boldsymbol{\theta}}=\left(z_{i}-y_{i}\right)\boldsymbol{x}_{i},\quad\left(z_{i}=sigmoid(\boldsymbol{x}_{i}\boldsymbol{\theta})\right)" />
 
