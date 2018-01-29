@@ -3,7 +3,6 @@ from mlbymxn.activation_functions import (
     IdentityActivationMixin,
     ExponentialActivationMixin,
     SigmoidActivationMixin,
-    StepActivationMixin,
     TanhActivationMixin,
     ReLUActivationMixin,
 )
@@ -31,7 +30,7 @@ class MLWithLogLoss(BaseML, LogLossMixin, SigmoidActivationMixin):
     pass
 
 
-class MLWithHingeLoss(BaseML, HingeLossMixin, StepActivationMixin):
+class MLWithHingeLoss(BaseML, HingeLossMixin, IdentityActivationMixin):
 
     def __init__(self, threshold: float):
         self.threshold = threshold

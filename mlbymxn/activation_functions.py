@@ -55,18 +55,6 @@ class SigmoidActivationMixin(BaseActivationMixin):
         return (1-A) * A
 
 
-class StepActivationMixin(BaseActivationMixin):
-
-    activation_type = 'step'
-
-    def activation(self, z, neg_label: int=0):
-        return np.vectorize(lambda x: 1 if x >= 0 else neg_label)(z)
-
-    def activation_gradient(self, z):
-        # TODO
-        pass
-
-
 class TanhActivationMixin(BaseActivationMixin):
 
     activation_type = 'tanh'

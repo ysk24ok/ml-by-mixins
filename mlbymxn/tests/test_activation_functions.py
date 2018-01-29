@@ -8,7 +8,6 @@ from mlbymxn.tests import (
     MLWithSquaredLoss,
     MLWithPoissonLoss,
     MLWithLogLoss,
-    MLWithHingeLoss,
     MLWithTanhActivation,
     MLWithReLUActivation
 )
@@ -77,32 +76,6 @@ class TestSigmoidActivation(TestCase):
         got = self.testee.activation_gradient(np.array([1,2,3]))
         expected = np.array([0.1966, 0.105, 0.0452])
         assert_array_almost_equal(got, expected, decimal=4)
-
-
-class TestStepActivation(TestCase):
-
-    def setUp(self):
-        self.testee = MLWithHingeLoss(threshold=0.0)
-
-    def test_activation(self):
-        # scalar
-        got = self.testee.activation(10)
-        assert_equal(got, 1)
-        got = self.testee.activation(-10)
-        assert_equal(got, 0)
-        got = self.testee.activation(10, neg_label=-1)
-        assert_equal(got, 1)
-        got = self.testee.activation(-10, neg_label=-1)
-        assert_equal(got, -1)
-        # array
-        got = self.testee.activation(np.array([10,-10,0]))
-        assert_array_equal(got, np.array([1,0,1]))
-        got = self.testee.activation(np.array([10,-10,0]), neg_label=-1)
-        assert_array_equal(got, np.array([1,-1,1]))
-
-    def test_activation_gradient(self):
-        # TODO
-        pass
 
 
 class TestTanhActivation(TestCase):

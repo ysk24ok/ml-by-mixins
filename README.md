@@ -48,7 +48,6 @@ Provided mixins are as follows:
   - identity
   - exponential
   - sigmoid
-  - step
   - tanh
   - ReLU
 

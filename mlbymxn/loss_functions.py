@@ -105,24 +105,35 @@ class LogLossMixin(BaseLossMixin):
 class HingeLossMixin(BaseLossMixin):
 
     def predict(self, theta, X):
-        # TODO: neg_label=-1 only if it's Perceptron
-        #       maybe neg_label should be a property of ML class
-        return self.activation(X @ theta, neg_label=-1)
+        return np.sign(X @ theta)
 
-    def _loss(self, theta, X, y):
+    def loss_function(self, theta, X, y):
         m = X.shape[0]
-        z = X @ theta * y
-        # max(0, t-ywx)
-        return np.maximum(np.zeros((m,)), self.threshold - z)
+        a = self.activation(X @ theta)
+        return np.sum(np.maximum(np.zeros((m,)), self.threshold - y * a)) / m
 
-    def loss_function(self, theta, X, y) -> float:
-        return np.sum(self._loss(theta, X, y))
+    def _dLdA(self, A, Y):
+        dLdA = A * Y
+        # y*a < t   -> -y
+        # y*a >= t  -> 0
+        over_threshold = dLdA >= self.threshold
+        under_threshold = dLdA < self.threshold
+        dLdA[over_threshold] = 0
+        dLdA[under_threshold] = -Y[under_threshold]
+        return dLdA
+
+    def _dLdZ(self, theta, Z, Y, A_cached=None):
+        A = A_cached
+        if A is None:
+            A = self.activation(Z)
+        return self._dLdA(A, Y) * self.activation_gradient(Z)
 
     def gradient(self, theta, X, y):
-        loss = self._loss(theta, X, y)
-        # max(0, -yx)
-        grad = -(X.T * loss) @ y
-        return grad
+        m = X.shape[0]
+        z = X @ theta
+        dLdZ = self._dLdZ(theta, z, y)
+        grad = X.T @ dLdZ
+        return grad / m
 
 
 class PoissonLossMixin(BaseLossMixin):

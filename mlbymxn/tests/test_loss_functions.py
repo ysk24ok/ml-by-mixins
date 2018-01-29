@@ -201,57 +201,53 @@ class TestHingeLoss(TestCase):
             [1, -1.2],
             [1, 0.3],
         ])
-        cls.y = np.array([1, 1, -1])
+        cls.y = np.array([1, -1, -1])
         cls.n = cls.X.shape[1]
 
     def test_predict(self):
         testee = MLWithHingeLoss(threshold=0.0)
-        testee.theta = np.ones((self.n,))
-        got = testee.predict(testee.theta, self.X)
+        theta = np.ones((self.n,))
+        got = testee.predict(theta, self.X)
         np.testing.assert_array_equal(got, np.array([1, -1, 1]))
 
     def test_loss_function(self):
         # threshold=0
         testee = MLWithHingeLoss(threshold=0.0)
-        testee.theta = np.ones((self.n,))
-        got = testee.loss_function(testee.theta, self.X, self.y)
-        assert_almost_equal(got, 1.5, places=1)
+        theta = np.ones((self.n,))
+        got = testee.loss_function(theta, self.X, self.y)
+        assert_almost_equal(got, 0.4333, places=4)
         # threshold=1
         testee = MLWithHingeLoss(threshold=1.0)
-        testee.theta = np.ones((self.n,))
-        got = testee.loss_function(testee.theta, self.X, self.y)
-        assert_almost_equal(got, 3.5, places=1)
+        theta = np.ones((self.n,))
+        got = testee.loss_function(theta, self.X, self.y)
+        assert_almost_equal(got, 1.0333, places=4)
 
     def test_gradient(self):
         # threshold=0
         testee = MLWithHingeLoss(threshold=0.0)
-        testee.theta = np.ones((self.n,))
-        got = testee.gradient(testee.theta, self.X, self.y)
-        assert_array_almost_equal(got, np.array([1.1, 0.63]))
+        theta = np.array([0.5, 1])
+        got = testee.gradient(theta, self.X, self.y)
+        assert_array_almost_equal(got, [0.3333, 0.1], decimal=4)
         # threshold=1
         testee = MLWithHingeLoss(threshold=1.0)
-        testee.theta = np.ones((self.n,))
-        got = testee.gradient(testee.theta, self.X, self.y)
-        assert_array_almost_equal(got, np.array([1.1, 2.13]))
+        theta = np.array([0.5, 1])
+        got = testee.gradient(theta, self.X, self.y)
+        assert_array_almost_equal(got, [0.6667, -0.3], decimal=4)
 
     def test_check_gradient(self):
         pass
-        # TODO: test_check_gradient always fails
-        #       maybe hinge loss is not implemented properly
         # threshold=0
-        #testee = MLWithHingeLoss(threshold=0.0)
-        #testee.theta = np.random.rand(self.n) - 0.5
-        #got = check_grad(
-        #    testee.loss_function, testee.gradient,
-        #    testee.theta, self.X, self.y)
-        #assert_almost_equal(got, 0, places=4)
+        testee = MLWithHingeLoss(threshold=0.0)
+        theta = np.random.randn(self.n)
+        got = check_grad(
+            testee.loss_function, testee.gradient, theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=4)
         # threshold=1
-        #testee = MLWithHingeLoss(threshold=1.0)
-        #testee.theta = np.random.rand(self.n) - 0.5
-        #got = check_grad(
-        #    testee.loss_function, testee.gradient,
-        #    testee.theta, self.X, self.y)
-        #assert_almost_equal(got, 0, places=4)
+        testee = MLWithHingeLoss(threshold=1.0)
+        theta = np.random.randn(self.n)
+        got = check_grad(
+            testee.loss_function, testee.gradient, theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=4)
 
 
 class TestPoissonLoss(TestCase):
