@@ -13,8 +13,9 @@ from .logistic import (
     LogisticRegressionNewton
 )
 from .perceptron import (
-    PerceptronScipy,
-    Perceptron
+    Perceptron,
+    PerceptronByScipy,
+    PerceptronBySGD
 )
 from .poisson import (
     PoissonRegressionScipy,

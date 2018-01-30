@@ -235,7 +235,6 @@ class TestHingeLoss(TestCase):
         assert_array_almost_equal(got, [0.6667, -0.3], decimal=4)
 
     def test_check_gradient(self):
-        pass
         # threshold=0
         testee = MLWithHingeLoss(threshold=0.0)
         theta = np.random.randn(self.n)
@@ -247,6 +246,38 @@ class TestHingeLoss(TestCase):
         theta = np.random.randn(self.n)
         got = check_grad(
             testee.loss_function, testee.gradient, theta, self.X, self.y)
+        assert_almost_equal(got, 0, places=4)
+
+
+class TestHingeLossWithL2Reg(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.X = np.array([
+            [1, 0.6],
+            [1, -1.2],
+            [1, 0.3],
+        ])
+        cls.y = np.array([1, -1, -1])
+        cls.n = cls.X.shape[1]
+        # threshold=1
+        cls.testee = MLWithHingeLoss(threshold=1.0, l2_reg=1.0)
+
+    def test_loss_function(self):
+        theta = np.ones((self.n,))
+        got = self.testee.loss_function(theta, self.X, self.y)
+        assert_almost_equal(got, 1.2, places=4)
+
+    def test_gradient(self):
+        theta = np.array([0.5, 1])
+        got = self.testee.gradient(theta, self.X, self.y)
+        assert_array_almost_equal(got, [0.6667, 0.0333], decimal=4)
+
+    def test_check_gradient(self):
+        theta = np.random.randn(self.n)
+        got = check_grad(
+            self.testee.loss_function, self.testee.gradient,
+            theta, self.X, self.y)
         assert_almost_equal(got, 0, places=4)
 
 

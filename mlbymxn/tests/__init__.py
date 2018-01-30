@@ -32,8 +32,9 @@ class MLWithLogLoss(BaseML, LogLossMixin, SigmoidActivationMixin):
 
 class MLWithHingeLoss(BaseML, HingeLossMixin, IdentityActivationMixin):
 
-    def __init__(self, threshold: float):
+    def __init__(self, threshold: float, l2_reg: float=0.0):
         self.threshold = threshold
+        self.l2_reg = l2_reg
 
 
 class MLWithTanhActivation(BaseML, TanhActivationMixin):

@@ -101,7 +101,6 @@ class LogLossMixin(BaseLossMixin):
         return z @ z * X.T @ X / m
 
 
-# TODO: l2_reg
 class HingeLossMixin(BaseLossMixin):
 
     def predict(self, theta, X):
@@ -110,7 +109,9 @@ class HingeLossMixin(BaseLossMixin):
     def loss_function(self, theta, X, y):
         m = X.shape[0]
         a = self.activation(X @ theta)
-        return np.sum(np.maximum(np.zeros((m,)), self.threshold - y * a)) / m
+        loss = np.sum(np.maximum(np.zeros((m,)), self.threshold - y * a)) / m
+        loss += self.l2_reg * np.sum(self._theta_for_l2reg(theta) ** 2) / (2 * m)
+        return loss
 
     def _dLdA(self, A, Y):
         dLdA = A * Y
@@ -133,6 +134,7 @@ class HingeLossMixin(BaseLossMixin):
         z = X @ theta
         dLdZ = self._dLdZ(theta, z, y)
         grad = X.T @ dLdZ
+        grad += self.l2_reg * self._theta_for_l2reg(theta)
         return grad / m
 
 

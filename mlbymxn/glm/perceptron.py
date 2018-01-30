@@ -7,21 +7,24 @@ from ..optimizers import (
 )
 
 
-class BasePerceptron(BaseML, HingeLossMixin, IdentityActivationMixin):
+class Perceptron(BaseML, HingeLossMixin, IdentityActivationMixin):
 
     def __init__(self, **kargs):
+        # Force l2_reg = 0.0
+        # because Perceptron has no margin-maximization effect
+        kargs['l2_reg'] = 0.0
         if 'eta' not in kargs:
-            kargs['eta'] = 1
-        super().__init__(**kargs)
+            kargs['eta'] = 1.0
+        super(Perceptron, self).__init__(**kargs)
         # threshold for hinge loss
         self.threshold = 0.0
 
 
-class PerceptronScipy(BasePerceptron, ScipyOptimizerMixin):
+class PerceptronByScipy(Perceptron, ScipyOptimizerMixin):
 
     pass
 
 
-class Perceptron(BasePerceptron, SGDOptimizerMixin):
+class PerceptronBySGD(Perceptron, SGDOptimizerMixin):
 
     pass
